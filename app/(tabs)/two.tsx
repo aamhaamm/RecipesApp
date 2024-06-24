@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, ScrollView, Image, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextInput, ScrollView, Image, TouchableOpacity, View, Modal, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
 
+const recipes = [
+  { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
+  { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
+];
+
 export default function TabTwoScreen() {
   const [search, setSearch] = useState('');
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+
+  const toggleFavorite = (recipe) => {
+    if (favoriteRecipes.includes(recipe.name)) {
+      setFavoriteRecipes(favoriteRecipes.filter(item => item !== recipe.name));
+    } else {
+      setFavoriteRecipes([...favoriteRecipes, recipe.name]);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -41,24 +56,33 @@ export default function TabTwoScreen() {
       </ScrollView>
       <Text style={styles.sectionTitle}>Recipes</Text>
       <View style={styles.recipesContainer}>
-        {[
-          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
-          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
-          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
-          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
-          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
-          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
-          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
-          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
-          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
-          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
-        ].map((recipe, index) => (
-          <View key={index} style={styles.recipeCard}>
+        {recipes.map((recipe, index) => (
+          <TouchableOpacity key={index} style={styles.recipeCard} onPress={() => setSelectedRecipe(recipe)}>
             <Image source={recipe.image} style={styles.recipeImage} />
             <Text style={styles.recipeText}>{recipe.name}</Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
+
+      {selectedRecipe && (
+        <Modal visible={true} transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Pressable onPress={() => setSelectedRecipe(null)} style={styles.backButton}>
+                  <Ionicons name="arrow-back-outline" size={25} color="#000" />
+                </Pressable>
+                <Pressable onPress={() => toggleFavorite(selectedRecipe)} style={styles.favoriteButton}>
+                  <Ionicons name={favoriteRecipes.includes(selectedRecipe.name) ? "heart" : "heart-outline"} size={25} color={favoriteRecipes.includes(selectedRecipe.name) ? "#ff0000" : "#000"} />
+                </Pressable>
+              </View>
+              <Image source={selectedRecipe.image} style={styles.modalImage} />
+              <Text style={styles.modalTitle}>{selectedRecipe.name}</Text>
+              <Text style={styles.modalDetails}>{selectedRecipe.details}</Text>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 }
@@ -150,6 +174,46 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
     color: '#000',
+    textAlign: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  backButton: {
+    alignItems: 'flex-start',
+  },
+  favoriteButton: {
+    alignItems: 'flex-end',
+  },
+  modalImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  modalDetails: {
+    fontSize: 16,
+    color: '#666',
     textAlign: 'center',
   },
 });
