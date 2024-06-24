@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { StyleSheet, TextInput, ScrollView, Image, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Text } from '@/components/Themed';
 
 export default function TabTwoScreen() {
   const [search, setSearch] = useState('');
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
         <Ionicons name="notifications-outline" size={25} color="#000" />
@@ -29,9 +29,9 @@ export default function TabTwoScreen() {
         {[
           { name: 'Beef', image: require('@/assets/images/Beef.jpg') },
           { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
-          { name: 'Dessert', image: require('@/assets/images/dessert.jpg') },
-          { name: 'Lamb', image: require('@/assets/images/lamb.jpg') },
-          { name: 'Miscellaneous', image: require('@/assets/images/miscellaneous.jpg') },
+          { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
+          { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
+          { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
         ].map((category, index) => (
           <TouchableOpacity key={index} style={styles.category}>
             <Image source={category.image} style={styles.categoryImage} />
@@ -44,7 +44,14 @@ export default function TabTwoScreen() {
         {[
           { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
           { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
-          // Add more recipes as needed
+          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
+          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
+          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
+          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
+          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
+          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
+          { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg') },
+          { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg') },
         ].map((recipe, index) => (
           <View key={index} style={styles.recipeCard}>
             <Image source={recipe.image} style={styles.recipeImage} />
@@ -58,8 +65,8 @@ export default function TabTwoScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flexGrow: 1,
+    backgroundColor: '#F5F5DC',
     paddingHorizontal: 20,
   },
   header: {
@@ -67,6 +74,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 20,
+    paddingTop: 40,
   },
   profileImage: {
     width: 40,
@@ -142,5 +150,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
     color: '#000',
+    textAlign: 'center',
   },
 });
