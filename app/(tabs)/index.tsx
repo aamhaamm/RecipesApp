@@ -113,10 +113,10 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.25)', // Shadow color for text
     textShadowOffset: { width: 2, height: 2 }, // Offset for text shadow
     textShadowRadius: 3, // Radius for text shadow
-    marginVertical: 20,
+    marginVertical: 50,
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 10,
     height: 1,
     width: '80%',
     backgroundColor: '#eee', // Light separator color
