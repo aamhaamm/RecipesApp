@@ -2,22 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 export default function TabOneScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation(); // Initialize navigation
 
   // Heartbeat animation value
   const scaleValue = new Animated.Value(1);
 
   const handleSignIn = () => {
-    if (email === '111' && password === '111') {
-      navigation.navigate('Tabs'); // Navigate to the Tabs page
-    } else {
-      Alert.alert('Sign In', 'Invalid email or password');
-    }
+    // Add sign-in logic here
+    Alert.alert('Sign In', `Email: ${email}\nPassword: ${password}`);
   };
 
   // Heartbeat animation

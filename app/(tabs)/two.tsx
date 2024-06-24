@@ -27,7 +27,7 @@ export default function TabTwoScreen() {
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
         {[
-          { name: 'Beef', image: require('@/assets/images/Beef.jpg') },
+          { name: 'Beef', image: require('@/assets/images/beef.jpg') },
           { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
           { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
           { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
