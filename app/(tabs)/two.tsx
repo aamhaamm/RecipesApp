@@ -3,17 +3,25 @@ import { StyleSheet, TextInput, ScrollView, Image, TouchableOpacity, View, Modal
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
 
-const recipes = [
+interface Recipe {
+  name: string;
+  image: any;
+  details: string;
+}
+
+const recipes: Recipe[] = [
   { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
   { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
+  { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
+  { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
 ];
 
 export default function TabTwoScreen() {
-  const [search, setSearch] = useState('');
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [search, setSearch] = useState<string>('');
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
 
-  const toggleFavorite = (recipe) => {
+  const toggleFavorite = (recipe: Recipe) => {
     if (favoriteRecipes.includes(recipe.name)) {
       setFavoriteRecipes(favoriteRecipes.filter(item => item !== recipe.name));
     } else {
@@ -22,47 +30,49 @@ export default function TabTwoScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-        <Ionicons name="notifications-outline" size={25} color="#000" />
-      </View>
-      <Text style={styles.greeting}>Hello Abdullah</Text>
-      <Text style={styles.title}>
-        Make your own food, <Text style={styles.highlight}>stay at home</Text>
-      </Text>
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color="#000" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search any recipe"
-          value={search}
-          onChangeText={setSearch}
-        />
-      </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
-        {[
-          { name: 'Beef', image: require('@/assets/images/beef.jpg') },
-          { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
-          { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
-          { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
-          { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
-        ].map((category, index) => (
-          <TouchableOpacity key={index} style={styles.category}>
-            <Image source={category.image} style={styles.categoryImage} />
-            <Text style={styles.categoryText}>{category.name}</Text>
-          </TouchableOpacity>
-        ))}
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+        <View style={styles.header}>
+          <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
+          <Ionicons name="notifications-outline" size={25} color="#000" />
+        </View>
+        <Text style={styles.greeting}>Hello Abdullah</Text>
+        <Text style={styles.title}>
+          Make your own food, <Text style={styles.highlight}>stay at home</Text>
+        </Text>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} color="#000" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search any recipe"
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
+          {[
+            { name: 'Beef', image: require('@/assets/images/beef.jpg') },
+            { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
+            { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
+            { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
+            { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
+          ].map((category, index) => (
+            <TouchableOpacity key={index} style={styles.category}>
+              <Image source={category.image} style={styles.categoryImage} />
+              <Text style={styles.categoryText}>{category.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <Text style={styles.sectionTitle}>Recipes</Text>
+        <View style={styles.recipesContainer}>
+          {recipes.map((recipe, index) => (
+            <TouchableOpacity key={index} style={styles.recipeCard} onPress={() => setSelectedRecipe(recipe)}>
+              <Image source={recipe.image} style={styles.recipeImage} />
+              <Text style={styles.recipeText}>{recipe.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
-      <Text style={styles.sectionTitle}>Recipes</Text>
-      <View style={styles.recipesContainer}>
-        {recipes.map((recipe, index) => (
-          <TouchableOpacity key={index} style={styles.recipeCard} onPress={() => setSelectedRecipe(recipe)}>
-            <Image source={recipe.image} style={styles.recipeImage} />
-            <Text style={styles.recipeText}>{recipe.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
 
       {selectedRecipe && (
         <Modal visible={true} transparent={true}>
@@ -83,14 +93,16 @@ export default function TabTwoScreen() {
           </View>
         </Modal>
       )}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: '#F5F5DC',
+  },
+  scrollContentContainer: {
     paddingHorizontal: 20,
   },
   header: {
