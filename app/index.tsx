@@ -55,8 +55,15 @@ export default function PhoneNumberScreen() {
     const newOTP = [...otp];
     newOTP[index] = value;
     setOTP(newOTP);
-    if (value && index < otpRefs.current.length - 1) {
-      otpRefs.current[index + 1]?.focus();
+
+    if (value) {
+      if (index < otpRefs.current.length - 1) {
+        otpRefs.current[index + 1]?.focus();
+      }
+    } else {
+      if (index > 0) {
+        otpRefs.current[index - 1]?.focus();
+      }
     }
   };
 
@@ -272,3 +279,4 @@ const styles = StyleSheet.create({
     width: '15%',
   },
 });
+

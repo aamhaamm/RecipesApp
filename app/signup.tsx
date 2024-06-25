@@ -51,7 +51,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="Phone Number"
-              value={phone}
+              value={`+966${phone}`}
               editable={false}
               keyboardType="phone-pad"
               autoCapitalize="none"
