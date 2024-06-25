@@ -1,19 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, View, Animated, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 export default function PhoneNumberScreen() {
   const [step, setStep] = useState(1); // 1 for phone input, 2 for OTP input
   const [phone, setPhone] = useState('');
-  const [otp, setOTP] = useState('');
+  const [otp, setOTP] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [resendDisabled, setResendDisabled] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
+  // Create refs for OTP inputs
+  const otpRefs = useRef<Array<TextInput | null>>([]);
+
   const handleSendOTP = () => {
-    // Mock sending OTP logic
+    if (phone.length !== 9) {
+      setErrorMessage('Phone number must be exactly 9 digits');
+      return;
+    }
+    setErrorMessage('');
     Alert.alert('OTP Sent', `OTP sent to +966${phone}`);
     setStep(2);
     setTimer(30);
@@ -21,18 +29,35 @@ export default function PhoneNumberScreen() {
   };
 
   const handleVerifyOTP = () => {
-    // Mock verify OTP logic
-    if (otp === '123456') { // Example OTP for testing
-      router.push('/main');
+    const enteredOTP = otp.join('');
+    if (enteredOTP === '123456') { // Example OTP for testing
+      if (phone === '123456789') { // Example number for testing unregistered user
+        router.push({
+          pathname: '/signup',
+          params: { phone }
+        });
+      } else {
+        router.push('/main');
+      }
     } else {
-      Alert.alert('Invalid OTP', 'The OTP you entered is incorrect.');
+      setErrorMessage('The OTP you entered is incorrect.');
     }
   };
 
   const handleResendOTP = () => {
     setTimer(30);
     setResendDisabled(true);
+    setErrorMessage(''); // Clear any previous error messages
     Alert.alert('OTP Resent', 'A new OTP has been sent');
+  };
+
+  const handleOTPChange = (index: number, value: string) => {
+    const newOTP = [...otp];
+    newOTP[index] = value;
+    setOTP(newOTP);
+    if (value && index < otpRefs.current.length - 1) {
+      otpRefs.current[index + 1]?.focus();
+    }
   };
 
   const scaleValue = new Animated.Value(1);
@@ -95,25 +120,33 @@ export default function PhoneNumberScreen() {
                   onChangeText={setPhone}
                   keyboardType="phone-pad"
                   autoCapitalize="none"
+                  maxLength={9}
                 />
               </View>
+              {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
               <Pressable style={styles.button} onPress={handleSendOTP}>
                 <Text style={styles.buttonText}>Send OTP</Text>
               </Pressable>
             </>
           ) : (
             <>
-              <View style={styles.inputContainer}>
-                <Ionicons name="key-outline" size={20} color="#333" style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="OTP"
-                  value={otp}
-                  onChangeText={setOTP}
-                  keyboardType="numeric"
-                  autoCapitalize="none"
-                />
+              <Pressable onPress={() => setStep(1)} style={styles.backButton}>
+                <Ionicons name="arrow-back-outline" size={25} color="#333" />
+              </Pressable>
+              <View style={styles.otpContainer}>
+                {otp.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={el => otpRefs.current[index] = el}
+                    style={styles.otpInput}
+                    value={digit}
+                    onChangeText={(value) => handleOTPChange(index, value)}
+                    keyboardType="numeric"
+                    maxLength={1}
+                  />
+                ))}
               </View>
+              {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
               <Pressable style={styles.button} onPress={handleVerifyOTP}>
                 <Text style={styles.buttonText}>Verify OTP</Text>
               </Pressable>
@@ -214,5 +247,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginRight: 10,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 20,
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginVertical: 20,
+  },
+  otpInput: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 18,
+    textAlign: 'center',
+    width: '15%',
   },
 });
