@@ -1,15 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Image, TextInput, Pressable, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
+import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, View, Animated, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Link } from 'expo-router';
 import { Text } from '@/components/Themed';
+import { Link, useRouter } from 'expo-router';
 
-export default function TabOneScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function PhoneNumberScreen() {
+  const [step, setStep] = useState(1); // 1 for phone input, 2 for OTP input
+  const [phone, setPhone] = useState('');
+  const [otp, setOTP] = useState('');
+  const [timer, setTimer] = useState(30);
+  const [resendDisabled, setResendDisabled] = useState(true);
+  const router = useRouter();
 
-  const handleSignIn = () => {
-    // Add sign-in logic here
+  const handleSendOTP = () => {
+    // Mock sending OTP logic
+    Alert.alert('OTP Sent', `OTP sent to +966${phone}`);
+    setStep(2);
+    setTimer(30);
+    setResendDisabled(true);
+  };
+
+  const handleVerifyOTP = () => {
+    // Mock verify OTP logic
+    if (otp === '123456') { // Example OTP for testing
+      router.push('/main');
+    } else {
+      Alert.alert('Invalid OTP', 'The OTP you entered is incorrect.');
+    }
+  };
+
+  const handleResendOTP = () => {
+    setTimer(30);
+    setResendDisabled(true);
+    Alert.alert('OTP Resent', 'A new OTP has been sent');
   };
 
   const scaleValue = new Animated.Value(1);
@@ -35,6 +58,17 @@ export default function TabOneScreen() {
     startHeartbeat();
   }, []);
 
+  useEffect(() => {
+    if (step === 2 && timer > 0) {
+      const interval = setInterval(() => {
+        setTimer(timer - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      setResendDisabled(false);
+    }
+  }, [timer, step]);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -42,40 +76,56 @@ export default function TabOneScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.topContainer}>
-          <Text style={styles.title}>Welcome to Recipes maker</Text>
+          <Text style={styles.title}>Welcome to Recipes Maker</Text>
           <Animated.Image
             source={require('@/assets/images/logo.png')}
             style={[styles.image, { transform: [{ scale: scaleValue }] }]}
           />
         </View>
         <View style={styles.bottomContainer}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#333" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#333" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
-          <Link href="/main" asChild>
-            <Pressable style={styles.button} onPress={handleSignIn} >
-              <Text style={styles.buttonText}>Sign In</Text>
-            </Pressable>
-          </Link>
+          {step === 1 ? (
+            <>
+              <View style={styles.inputContainer}>
+                <Image source={require('@/assets/images/saudi_flag.jpg')} style={styles.flag} />
+                <Text style={styles.prefix}>+966</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                  autoCapitalize="none"
+                />
+              </View>
+              <Pressable style={styles.button} onPress={handleSendOTP}>
+                <Text style={styles.buttonText}>Send OTP</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <View style={styles.inputContainer}>
+                <Ionicons name="key-outline" size={20} color="#333" style={styles.icon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="OTP"
+                  value={otp}
+                  onChangeText={setOTP}
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                />
+              </View>
+              <Pressable style={styles.button} onPress={handleVerifyOTP}>
+                <Text style={styles.buttonText}>Verify OTP</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, resendDisabled && styles.buttonDisabled]}
+                onPress={handleResendOTP}
+                disabled={resendDisabled}
+              >
+                <Text style={styles.buttonText}>Resend OTP ({timer}s)</Text>
+              </Pressable>
+            </>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -90,14 +140,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#CBE25B', // Beige background for top section
+    backgroundColor: '#CBE25B',
     paddingVertical: 15,
     paddingHorizontal: 20,
   },
   bottomContainer: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF', // White background for bottom section
+    backgroundColor: '#FFFFFF',
     paddingVertical: 40,
     paddingHorizontal: 20,
     borderTopLeftRadius: 30,
@@ -108,9 +158,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#000',
-    textShadowColor: 'rgba(0, 0, 0, 0.25)', // Shadow color for text
-    textShadowOffset: { width: 2, height: 2 }, // Offset for text shadow
-    textShadowRadius: 3, // Radius for text shadow
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 3,
     marginVertical: 50,
   },
   image: {
@@ -121,25 +171,25 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputContainer: {
-    flexDirection: 'row', // Arrange icon and input in a row
+    flexDirection: 'row',
     alignItems: 'center',
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
     marginVertical: 10,
-    backgroundColor: '#f9f9f9', // Light background for input
-    width: '100%', // Full width
+    backgroundColor: '#f9f9f9',
+    width: '100%',
   },
   icon: {
-    marginRight: 10, // Space between icon and input
+    marginRight: 10,
   },
   input: {
     flex: 1,
     height: 40,
   },
   button: {
-    backgroundColor: '#CBE25B', 
+    backgroundColor: '#CBE25B',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -151,5 +201,18 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  flag: {
+    width: 30,
+    height: 20,
+    marginRight: 10,
+  },
+  prefix: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 10,
   },
 });
