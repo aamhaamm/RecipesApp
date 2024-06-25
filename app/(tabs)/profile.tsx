@@ -63,7 +63,8 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
-          value={user.phone}
+          placeholderTextColor="#888"
+          value=""
           editable={false}
         />
       </View>
@@ -72,7 +73,8 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          value={user.email}
+          placeholderTextColor="#888"
+          value=""
           editable={false}
         />
       </View>
@@ -81,7 +83,8 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          value={user.password}
+          placeholderTextColor="#888"
+          value=""
           editable={false}
           secureTextEntry
         />
