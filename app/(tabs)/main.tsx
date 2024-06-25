@@ -37,7 +37,7 @@ export default function MainScreen() {
           <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
           <Ionicons name="notifications-outline" size={25} color="#000" />
         </View>
-        <Text style={styles.greeting}>Hello Abdullah</Text>
+        <Text style={styles.greeting}>Hello Abdullah,</Text>
         <Text style={styles.title}>
           Make your own food, <Text style={styles.highlight}>stay at home</Text>
         </Text>
