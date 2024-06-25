@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#000096', // Dark brown color for text
+    color: '#000',
     textShadowColor: 'rgba(0, 0, 0, 0.25)', // Shadow color for text
     textShadowOffset: { width: 2, height: 2 }, // Offset for text shadow
     textShadowRadius: 3, // Radius for text shadow
@@ -147,16 +147,16 @@ const styles = StyleSheet.create({
     height: 40,
   },
   button: {
-    backgroundColor: '#1e90ff', // Dodger blue color for button
+    backgroundColor: '#F5F5DC', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: 20,
-    width: '30%',
+    width: '100%',
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
   },
