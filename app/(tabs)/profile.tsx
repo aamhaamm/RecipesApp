@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    marginVertical: 20,
   },
   profileTitle: {
     fontSize: 24,

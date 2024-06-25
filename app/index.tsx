@@ -72,7 +72,7 @@ export default function TabOneScreen() {
               autoCapitalize="none"
             />
           </View>
-          <Link href="/two" asChild>
+          <Link href="/main" asChild>
             <Pressable style={styles.button} onPress={handleSignIn} >
               <Text style={styles.buttonText}>Sign In</Text>
             </Pressable>

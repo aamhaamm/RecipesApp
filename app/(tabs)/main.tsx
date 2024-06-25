@@ -17,7 +17,7 @@ const recipes: Recipe[] = [
   { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
 ];
 
-export default function TabTwoScreen() {
+export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
