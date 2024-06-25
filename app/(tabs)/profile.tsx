@@ -4,6 +4,7 @@ import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RecipeCard from '@/components/RecipeCard';
 import { FontAwesome } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 
 interface Recipe {
   name: string;
@@ -17,7 +18,6 @@ interface FavoriteRecipe {
   details: string;
   isFavorite: boolean;
 }
-
 
 interface User {
   name: string;

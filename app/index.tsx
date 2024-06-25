@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
+import { StyleSheet, Image, TextInput, Pressable, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Link } from 'expo-router';
 import { Text } from '@/components/Themed';
 
 export default function TabOneScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Heartbeat animation value
-  const scaleValue = new Animated.Value(1);
-
   const handleSignIn = () => {
     // Add sign-in logic here
-    Alert.alert('Sign In', `Email: ${email}\nPassword: ${password}`);
   };
 
-  // Heartbeat animation
+  const scaleValue = new Animated.Value(1);
+
   const startHeartbeat = () => {
     Animated.loop(
       Animated.sequence([
@@ -33,7 +31,6 @@ export default function TabOneScreen() {
     ).start();
   };
 
-  // Start the heartbeat animation on component mount
   useEffect(() => {
     startHeartbeat();
   }, []);
@@ -75,9 +72,11 @@ export default function TabOneScreen() {
               autoCapitalize="none"
             />
           </View>
-          <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-            <Text style={styles.buttonText}>Sign In</Text>
-          </TouchableOpacity>
+          <Link href="/two" asChild>
+            <Pressable style={styles.button} onPress={handleSignIn} >
+              <Text style={styles.buttonText}>Sign In</Text>
+            </Pressable>
+          </Link>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
