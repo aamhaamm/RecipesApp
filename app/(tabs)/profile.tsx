@@ -12,11 +12,12 @@ interface Recipe {
 }
 
 interface FavoriteRecipe {
-  details: ReactNode;
   name: string;
   image: any;
+  details: string;
   isFavorite: boolean;
 }
+
 
 interface User {
   name: string;
