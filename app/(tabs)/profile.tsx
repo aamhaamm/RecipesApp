@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, Image, View, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native';
+import React, { ReactNode, useState } from 'react';
+import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RecipeCard from '@/components/RecipeCard';
+import { FontAwesome } from '@expo/vector-icons';
+
+interface Recipe {
+  name: string;
+  image: any;
+  details: string;
+}
+
+interface FavoriteRecipe {
+  details: ReactNode;
+  name: string;
+  image: any;
+  isFavorite: boolean;
+}
 
 interface User {
   name: string;
@@ -13,12 +27,6 @@ interface User {
   favorites: FavoriteRecipe[];
 }
 
-interface FavoriteRecipe {
-  name: string;
-  image: any;
-  isFavorite: boolean;
-}
-
 export default function ProfileScreen() {
   const [user, setUser] = useState<User>({
     name: 'Abdullah Al Matawah',
@@ -27,8 +35,8 @@ export default function ProfileScreen() {
     password: '******',
     photo: require('@/assets/images/profile.png'),
     favorites: [
-      { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), isFavorite: true },
-      { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), isFavorite: true },
+      { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock', isFavorite: true },
+      { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock', isFavorite: true },
     ],
   });
 
@@ -80,13 +88,13 @@ export default function ProfileScreen() {
       <Text style={styles.sectionTitle}>Favorite Recipes</Text>
       <View style={styles.favoritesContainer}>
         {user.favorites.map((recipe, index) => (
-          <TouchableOpacity key={index} style={styles.recipeCard} onPress={() => setExpandedRecipe(recipe)}>
-            <Image source={recipe.image} style={styles.recipeImage} />
-            <Text style={styles.recipeText}>{recipe.name}</Text>
-            <TouchableOpacity style={styles.heartIcon} onPress={() => toggleFavorite(index)}>
-              <FontAwesome name="heart" size={24} color={recipe.isFavorite ? "#F00" : "#CCC"} />
-            </TouchableOpacity>
-          </TouchableOpacity>
+          <RecipeCard
+            key={index}
+            recipe={recipe}
+            isFavorite={recipe.isFavorite}
+            onPress={() => setExpandedRecipe(recipe)}
+            onToggleFavorite={() => toggleFavorite(index)}
+          />
         ))}
       </View>
 
@@ -97,21 +105,23 @@ export default function ProfileScreen() {
           visible={!!expandedRecipe}
           onRequestClose={() => setExpandedRecipe(null)}
         >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Pressable onPress={() => setExpandedRecipe(null)} style={styles.backButton}>
-                  <Ionicons name="arrow-back-outline" size={25} color="#000" />
-                </Pressable>
-                <Pressable onPress={() => toggleFavorite(user.favorites.indexOf(expandedRecipe))} style={styles.favoriteButton}>
-                  <Ionicons name={expandedRecipe.isFavorite ? "heart" : "heart-outline"} size={25} color={expandedRecipe.isFavorite ? "#ff0000" : "#000"} />
-                </Pressable>
+          <Pressable style={styles.modalContainer} onPress={() => setExpandedRecipe(null)}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Pressable onPress={() => setExpandedRecipe(null)} style={styles.closeButton}>
+                    <Ionicons name="arrow-back" size={24} color="#000" />
+                  </Pressable>
+                  <Pressable onPress={() => toggleFavorite(user.favorites.indexOf(expandedRecipe))}>
+                    <FontAwesome name="heart" size={24} color={expandedRecipe.isFavorite ? "#F00" : "#CCC"} />
+                  </Pressable>
+                </View>
+                <Image source={expandedRecipe.image} style={styles.modalImage} />
+                <Text style={styles.modalTitle}>{expandedRecipe.name}</Text>
+                <Text style={styles.modalText}>{expandedRecipe.details}</Text>
               </View>
-              <Image source={expandedRecipe.image} style={styles.modalImage} />
-              <Text style={styles.modalTitle}>{expandedRecipe.name}</Text>
-              <Text style={styles.modalDetails}>1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock</Text>
-            </View>
-          </View>
+            </TouchableWithoutFeedback>
+          </Pressable>
         </Modal>
       )}
     </ScrollView>
@@ -130,7 +140,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    marginVertical: 10,
   },
   profileTitle: {
     fontSize: 24,
@@ -181,31 +190,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  recipeCard: {
-    width: '48%',
-    marginVertical: 10,
-  },
-  recipeImage: {
-    width: '100%',
-    height: 150,
-    borderRadius: 10,
-  },
-  recipeText: {
-    marginTop: 5,
-    fontSize: 14,
-    color: '#000',
-    textAlign: 'center',
-  },
-  heartIcon: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     width: '80%',
@@ -219,11 +208,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  backButton: {
+  closeButton: {
     alignItems: 'flex-start',
-  },
-  favoriteButton: {
-    alignItems: 'flex-end',
   },
   modalImage: {
     width: '100%',
@@ -236,7 +222,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
   },
-  modalDetails: {
+  modalText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',

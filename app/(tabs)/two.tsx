@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, Image, View, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native';
+import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RecipeCard from '@/components/RecipeCard';
 
 interface Recipe {
   name: string;
@@ -67,34 +67,36 @@ export default function TabTwoScreen() {
         <Text style={styles.sectionTitle}>Recipes</Text>
         <View style={styles.recipesContainer}>
           {recipes.map((recipe, index) => (
-            <TouchableOpacity key={index} style={styles.recipeCard} onPress={() => setSelectedRecipe(recipe)}>
-              <Image source={recipe.image} style={styles.recipeImage} />
-              <Text style={styles.recipeText}>{recipe.name}</Text>
-              <TouchableOpacity style={styles.heartIcon} onPress={() => toggleFavorite(recipe)}>
-                <FontAwesome name="heart" size={24} color={favoriteRecipes.includes(recipe.name) ? "#F00" : "#CCC"} />
-              </TouchableOpacity>
-            </TouchableOpacity>
+            <RecipeCard
+              key={index}
+              recipe={recipe}
+              isFavorite={favoriteRecipes.includes(recipe.name)}
+              onPress={() => setSelectedRecipe(recipe)}
+              onToggleFavorite={() => toggleFavorite(recipe)}
+            />
           ))}
         </View>
       </ScrollView>
 
       {selectedRecipe && (
         <Modal visible={true} transparent={true}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Pressable onPress={() => setSelectedRecipe(null)} style={styles.backButton}>
-                  <Ionicons name="arrow-back-outline" size={25} color="#000" />
-                </Pressable>
-                <Pressable onPress={() => toggleFavorite(selectedRecipe)} style={styles.favoriteButton}>
-                  <Ionicons name={favoriteRecipes.includes(selectedRecipe.name) ? "heart" : "heart-outline"} size={25} color={favoriteRecipes.includes(selectedRecipe.name) ? "#ff0000" : "#000"} />
-                </Pressable>
+          <Pressable style={styles.modalContainer} onPress={() => setSelectedRecipe(null)}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Pressable onPress={() => setSelectedRecipe(null)} style={styles.backButton}>
+                    <Ionicons name="arrow-back-outline" size={25} color="#000" />
+                  </Pressable>
+                  <Pressable onPress={() => toggleFavorite(selectedRecipe)} style={styles.favoriteButton}>
+                    <Ionicons name={favoriteRecipes.includes(selectedRecipe.name) ? "heart" : "heart-outline"} size={25} color={favoriteRecipes.includes(selectedRecipe.name) ? "#ff0000" : "#000"} />
+                  </Pressable>
+                </View>
+                <Image source={selectedRecipe.image} style={styles.modalImage} />
+                <Text style={styles.modalTitle}>{selectedRecipe.name}</Text>
+                <Text style={styles.modalDetails}>{selectedRecipe.details}</Text>
               </View>
-              <Image source={selectedRecipe.image} style={styles.modalImage} />
-              <Text style={styles.modalTitle}>{selectedRecipe.name}</Text>
-              <Text style={styles.modalDetails}>{selectedRecipe.details}</Text>
-            </View>
-          </View>
+            </TouchableWithoutFeedback>
+          </Pressable>
         </Modal>
       )}
     </View>
@@ -176,26 +178,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-  },
-  recipeCard: {
-    width: '48%',
-    marginVertical: 10,
-  },
-  recipeImage: {
-    width: '100%',
-    height: 150,
-    borderRadius: 10,
-  },
-  recipeText: {
-    marginTop: 5,
-    fontSize: 14,
-    color: '#000',
-    textAlign: 'center',
-  },
-  heartIcon: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
   },
   modalContainer: {
     flex: 1,
