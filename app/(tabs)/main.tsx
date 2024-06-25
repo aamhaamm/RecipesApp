@@ -106,7 +106,7 @@ export default function MainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5DC',
+    backgroundColor: '#FFFFFF',
   },
   scrollContentContainer: {
     paddingHorizontal: 20,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   highlight: {
-    color: '#FFA726',
+    color: '#CBE25B',
   },
   searchContainer: {
     flexDirection: 'row',

@@ -26,7 +26,7 @@ export default function TabLayout() {
         headerShown: false, // Hide the header for all tabs
       }}>
       <Tabs.Screen
-        name="two"
+        name="main"
         options={{
           title: 'Main page',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,

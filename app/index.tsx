@@ -43,7 +43,6 @@ export default function TabOneScreen() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.topContainer}>
           <Text style={styles.title}>Welcome to Recipes maker</Text>
-          <View style={styles.separator} />
           <Animated.Image
             source={require('@/assets/images/logo.png')}
             style={[styles.image, { transform: [{ scale: scaleValue }] }]}
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5F5DC', // Beige background for top section
+    backgroundColor: '#CBE25B', // Beige background for top section
     paddingVertical: 15,
     paddingHorizontal: 20,
   },
@@ -113,12 +112,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 2, height: 2 }, // Offset for text shadow
     textShadowRadius: 3, // Radius for text shadow
     marginVertical: 50,
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-    width: '80%',
-    backgroundColor: '#eee', // Light separator color
   },
   image: {
     width: 200,
@@ -146,7 +139,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   button: {
-    backgroundColor: '#F5F5DC', 
+    backgroundColor: '#CBE25B', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
