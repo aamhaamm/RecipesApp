@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, ScrollView, Image, TouchableOpacity, View, Modal, Pressable } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StyleSheet, ScrollView, Image, View, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { Text } from '@/components/Themed';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 interface Recipe {
   name: string;
@@ -69,6 +70,9 @@ export default function TabTwoScreen() {
             <TouchableOpacity key={index} style={styles.recipeCard} onPress={() => setSelectedRecipe(recipe)}>
               <Image source={recipe.image} style={styles.recipeImage} />
               <Text style={styles.recipeText}>{recipe.name}</Text>
+              <TouchableOpacity style={styles.heartIcon} onPress={() => toggleFavorite(recipe)}>
+                <FontAwesome name="heart" size={24} color={favoriteRecipes.includes(recipe.name) ? "#F00" : "#CCC"} />
+              </TouchableOpacity>
             </TouchableOpacity>
           ))}
         </View>
@@ -187,6 +191,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000',
     textAlign: 'center',
+  },
+  heartIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   modalContainer: {
     flex: 1,
