@@ -1,8 +1,6 @@
-// firebaseConfig.ts
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyC1Shm75Q8y23PcWOj514kHDFXPk76n5oY",
   authDomain: "recipesapp-17a88.firebaseapp.com",
