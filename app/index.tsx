@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, Pressable, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
+import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useRouter } from 'expo-router'; // Updated import for navigation
+import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { auth } from '@/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -9,21 +9,36 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 export default function TabOneScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter(); // Use the router for navigation
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential: { user: any; }) => {
         // Signed in
         const user = userCredential.user;
-        Alert.alert('Sign In Successful', `Welcome ${user.email}`);
-        router.push('/main'); // Navigate to the main page after successful sign-in
+        setError(null);
+        router.push('/main');
       })
       .catch((error: { code: any; message: any; }) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        Alert.alert('Sign In Failed', errorMessage);
+        const errorMessage = getErrorMessage(error.code);
+        setError(errorMessage);
       });
+  };
+
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/invalid-email':
+        return 'The email address is not valid.';
+      case 'auth/user-disabled':
+        return 'This user has been disabled.';
+      case 'auth/user-not-found':
+        return 'There is no user corresponding to this email.';
+      case 'auth/wrong-password':
+        return 'The password is incorrect.';
+      default:
+        return 'An unknown error occurred. Please try again.';
+    }
   };
 
   const scaleValue = new Animated.Value(1);
@@ -63,6 +78,7 @@ export default function TabOneScreen() {
           />
         </View>
         <View style={styles.bottomContainer}>
+          {error && <Text style={styles.errorText}>{error}</Text>}
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={20} color="#333" style={styles.icon} />
             <TextInput
@@ -163,5 +179,11 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 20,
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
