@@ -1,36 +1,62 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, View, Animated, Alert, Image } from 'react-native';
+import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, View, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
 import { useRouter } from 'expo-router';
+import { auth } from '@/firebaseConfig'; // Adjust the path to your firebaseConfig file
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function PhoneNumberScreen() {
   const [step, setStep] = useState(1); // 1 for phone input, 2 for OTP input
   const [phone, setPhone] = useState('');
   const [otp, setOTP] = useState(['', '', '', '', '', '']);
-  const [timer, setTimer] = useState(30);
-  const [resendDisabled, setResendDisabled] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [confirmation, setConfirmation] = useState(null);
+  const [timer, setTimer] = useState(0);
+  const [resendDisabled, setResendDisabled] = useState(false)
   const router = useRouter();
-
+  
   // Create refs for OTP inputs
+  const recaptchaRef = useRef(null)
   const otpRefs = useRef<Array<TextInput | null>>([]);
 
-  const handleSendOTP = () => {
+  const handleSendOTP = async () => {
     if (phone.length !== 9) {
       setErrorMessage('Phone number must be exactly 9 digits');
       return;
     }
     setErrorMessage('');
-    Alert.alert('OTP Sent', `OTP sent to +966${phone}`);
-    setStep(2);
-    setTimer(30);
-    setResendDisabled(true);
+
+    
+    try {
+      const phoneNumber = `+966${phone}`;
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: (response) => {
+          // reCAPTCHA solved
+          console.log('callback:: ', response)
+        }
+      });
+      console.log('here')
+
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+      setConfirmation(confirmationResult);
+      Alert.alert('OTP Sent', `OTP sent to +966${phone}`);
+      setStep(2);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = async () => {
+    if (!confirmation) {
+      setErrorMessage('Error verifying OTP.');
+      return;
+    }
     const enteredOTP = otp.join('');
-    if (enteredOTP === '123456') { // Example OTP for testing
+    try {
+      await confirmation.confirm(enteredOTP);
+      // Navigate to main or signup screen
       if (phone === '123456789') { // Example number for testing unregistered user
         router.push({
           pathname: '/signup',
@@ -39,16 +65,9 @@ export default function PhoneNumberScreen() {
       } else {
         router.push('/main');
       }
-    } else {
+    } catch (error) {
       setErrorMessage('The OTP you entered is incorrect.');
     }
-  };
-
-  const handleResendOTP = () => {
-    setTimer(30);
-    setResendDisabled(true);
-    setErrorMessage(''); // Clear any previous error messages
-    Alert.alert('OTP Resent', 'A new OTP has been sent');
   };
 
   const handleOTPChange = (index: number, value: string) => {
@@ -67,29 +86,6 @@ export default function PhoneNumberScreen() {
     }
   };
 
-  const scaleValue = new Animated.Value(1);
-
-  const startHeartbeat = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleValue, {
-          toValue: 1.1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleValue, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  };
-
-  useEffect(() => {
-    startHeartbeat();
-  }, []);
-
   useEffect(() => {
     if (step === 2 && timer > 0) {
       const interval = setInterval(() => {
@@ -102,6 +98,10 @@ export default function PhoneNumberScreen() {
   }, [timer, step]);
 
   return (
+    <>
+    <RecaptchaVerifier 
+      
+    />
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -109,9 +109,9 @@ export default function PhoneNumberScreen() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.topContainer}>
           <Text style={styles.title}>Welcome to Recipes Maker</Text>
-          <Animated.Image
+          <Image
             source={require('@/assets/images/logo.png')}
-            style={[styles.image, { transform: [{ scale: scaleValue }] }]}
+            style={styles.image}
           />
         </View>
         <View style={styles.bottomContainer}>
@@ -157,21 +157,14 @@ export default function PhoneNumberScreen() {
               <Pressable style={styles.button} onPress={handleVerifyOTP}>
                 <Text style={styles.buttonText}>Verify OTP</Text>
               </Pressable>
-              <Pressable
-                style={[styles.button, resendDisabled && styles.buttonDisabled]}
-                onPress={handleResendOTP}
-                disabled={resendDisabled}
-              >
-                <Text style={styles.buttonText}>Resend OTP ({timer}s)</Text>
-              </Pressable>
             </>
           )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </>
   );
 }
-
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
