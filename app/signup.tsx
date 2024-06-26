@@ -4,18 +4,24 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { auth } from '@/firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSignIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
+  const handleSignUp = () => {
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential: { user: any; }) => {
-        // Signed in
+        // Signed up
         const user = userCredential.user;
         setError(null);
         router.push('/main');
@@ -28,14 +34,14 @@ export default function SignInScreen() {
 
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return 'The email address is already in use.';
       case 'auth/invalid-email':
         return 'The email address is not valid.';
-      case 'auth/user-disabled':
-        return 'This user has been disabled.';
-      case 'auth/user-not-found':
-        return 'There is no user corresponding to this email.';
-      case 'auth/wrong-password':
-        return 'The password is incorrect.';
+      case 'auth/operation-not-allowed':
+        return 'Operation not allowed. Please contact support.';
+      case 'auth/weak-password':
+        return 'The password is too weak.';
       default:
         return 'An unknown error occurred. Please try again.';
     }
@@ -71,13 +77,23 @@ export default function SignInScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.topContainer}>
-          <Text style={styles.title}>Welcome to Recipes Maker</Text>
+          <Text style={styles.title}>Create an Account</Text>
           <Animated.Image
             source={require('@/assets/images/logo.png')}
             style={[styles.image, { transform: [{ scale: scaleValue }] }]}
           />
         </View>
         <View style={styles.bottomContainer}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="person-outline" size={20} color="#333" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+            />
+          </View>
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={20} color="#333" style={styles.icon} />
             <TextInput
@@ -100,12 +116,23 @@ export default function SignInScreen() {
               autoCapitalize="none"
             />
           </View>
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#333" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </View>
           {error && <Text style={styles.errorText}>{error}</Text>}
-          <Pressable style={styles.button} onPress={handleSignIn}>
-            <Text style={styles.buttonText}>Sign In</Text>
+          <Pressable style={styles.button} onPress={handleSignUp}>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </Pressable>
-          <Pressable style={styles.link} onPress={() => router.push('/signup')}>
-            <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
+          <Pressable style={styles.link} onPress={() => router.push('/index')}>
+            <Text style={styles.linkText}>Already have an account? Sign In</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -193,7 +220,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   linkText: {
-    color: '#000',
+    color: '#CBE25B',
     fontSize: 16,
     fontWeight: 'bold',
   },
