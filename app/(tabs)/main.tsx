@@ -2,20 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import RecipeCard from '@/components/RecipeCard';
-
-interface Recipe {
-  name: string;
-  image: any;
-  details: string;
-}
-
-const recipes: Recipe[] = [
-  { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
-  { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
-  { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
-  { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock' },
-];
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RecipeCard, { Recipe, exampleRecipes } from '@/components/RecipeCard';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
@@ -78,7 +66,7 @@ export default function MainScreen() {
         </ScrollView>
         <Text style={styles.sectionTitle}>Recipes</Text>
         <View style={styles.recipesContainer}>
-          {recipes.map((recipe, index) => (
+          {exampleRecipes.map((recipe, index) => (
             <RecipeCard
               key={index}
               recipe={recipe}
@@ -105,7 +93,40 @@ export default function MainScreen() {
                 </View>
                 <Image source={selectedRecipe.image} style={styles.modalImage} />
                 <Text style={styles.modalTitle}>{selectedRecipe.name}</Text>
-                <Text style={styles.modalDetails}>{selectedRecipe.details}</Text>
+                <View style={styles.detailsContainer}>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="clock-o" size={16} color="#333" />
+                    <Text style={styles.detailText}>{selectedRecipe.time}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="users" size={16} color="#333" />
+                    <Text style={styles.detailText}>{selectedRecipe.servings}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="fire" size={16} color="#333" />
+                    <Text style={styles.detailText}>{selectedRecipe.calories}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="check-circle" size={16} color="#333" />
+                    <Text style={styles.detailText}>{selectedRecipe.difficulty}</Text>
+                  </View>
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.sectionTitle}>Ingredients</Text>
+                  {selectedRecipe.ingredients.map((ingredient: any, index: React.Key | null | undefined) => (
+                    <Text key={index} style={styles.ingredientText}>
+                      {`\u2022 ${ingredient}`}
+                    </Text>
+                  ))}
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.sectionTitle}>Steps</Text>
+                  {selectedRecipe.steps.map((step: string, index: number) => ( // Ensure index is typed as number
+                  <Text key={index} style={styles.stepText}>
+                    {`${index + 1}. ${step}`}
+                  </Text>
+                ))}
+                </View>
               </View>
             </TouchableWithoutFeedback>
           </Pressable>
@@ -210,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
@@ -238,9 +259,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
   },
-  modalDetails: {
+  modalText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  detailsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: '#333',
+  },
+  sectionContainer: {
+    marginVertical: 10,
+  },
+  ingredientText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  stepText: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 5,
   },
 });

@@ -2,39 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import RecipeCard from '@/components/RecipeCard';
+import RecipeCard, { Recipe, exampleRecipes } from '@/components/RecipeCard';
 import { FontAwesome } from '@expo/vector-icons';
 import { auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 
-interface FavoriteRecipe {
-  name: string;
-  image: any;
-  details: string;
-  isFavorite: boolean;
-}
-
-interface User {
-  name: string;
-  email: string;
-  password: string;
-  photo: any;
-  favorites: FavoriteRecipe[];
-}
-
 export default function ProfileScreen() {
-  const [user, setUser] = useState<User>({
+  const [user, setUser] = useState({
     name: 'Abdullah Al Matawah',
     email: '',
     password: '******',
     photo: require('@/assets/images/profile.png'),
-    favorites: [
-      { name: 'Beef and Mustard Pie', image: require('@/assets/images/beef_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock', isFavorite: true },
-      { name: 'Beef and Oyster pie', image: require('@/assets/images/oyster_pie.jpg'), details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock', isFavorite: true },
-    ],
+    favorites: exampleRecipes.map(recipe => ({
+      ...recipe,
+      isFavorite: true,
+    })),
   });
 
-  const [expandedRecipe, setExpandedRecipe] = useState<FavoriteRecipe | null>(null);
+  const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -119,7 +104,40 @@ export default function ProfileScreen() {
                 </View>
                 <Image source={expandedRecipe.image} style={styles.modalImage} />
                 <Text style={styles.modalTitle}>{expandedRecipe.name}</Text>
-                <Text style={styles.modalText}>{expandedRecipe.details}</Text>
+                <View style={styles.detailsContainer}>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="clock-o" size={16} color="#333" />
+                    <Text style={styles.detailText}>{expandedRecipe.time}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="users" size={16} color="#333" />
+                    <Text style={styles.detailText}>{expandedRecipe.servings}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="fire" size={16} color="#333" />
+                    <Text style={styles.detailText}>{expandedRecipe.calories}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="check-circle" size={16} color="#333" />
+                    <Text style={styles.detailText}>{expandedRecipe.difficulty}</Text>
+                  </View>
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.sectionTitle}>Ingredients</Text>
+                  {expandedRecipe.ingredients.map((ingredient: any, index: React.Key | null | undefined) => (
+                    <Text key={index} style={styles.ingredientText}>
+                      {`\u2022 ${ingredient}`}
+                    </Text>
+                  ))}
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.sectionTitle}>Steps</Text>
+                  {expandedRecipe.steps.map((step: string, index: number) => (
+                    <Text key={index} style={styles.stepText}>
+                      {`${index + 1}. ${step}`}
+                    </Text>
+                  ))}
+                </View>
               </View>
             </TouchableWithoutFeedback>
           </Pressable>
@@ -216,6 +234,9 @@ const styles = StyleSheet.create({
   closeButton: {
     alignItems: 'flex-start',
   },
+  favoriteButton: {
+    alignItems: 'flex-end',
+  },
   modalImage: {
     width: '100%',
     height: 200,
@@ -231,5 +252,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  detailsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: '#333',
+  },
+  sectionContainer: {
+    marginVertical: 10,
+  },
+  ingredientText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  stepText: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 5,
   },
 });
