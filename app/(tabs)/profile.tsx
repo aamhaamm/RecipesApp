@@ -8,16 +8,21 @@ import { onAuthStateChanged } from 'firebase/auth';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 interface ProfileScreenProps {
-  favoriteRecipes: Recipe[];
+  route?: {
+    params?: {
+      favoriteRecipes: Recipe[];
+    };
+  };
 }
 
-export default function ProfileScreen({ favoriteRecipes }: ProfileScreenProps) {
+export default function ProfileScreen({ route }: ProfileScreenProps) {
+  const favoriteRecipes = route?.params?.favoriteRecipes || [];
   const [user, setUser] = useState({
     name: 'Abdullah Al Matawah',
     email: '',
     password: '******',
     photo: require('@/assets/images/profile.png'),
-    favorites: favoriteRecipes || [],
+    favorites: favoriteRecipes,
   });
 
   const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);

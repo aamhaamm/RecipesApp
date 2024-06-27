@@ -6,10 +6,10 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { fetchRecipes } from '@/components/firestoreService';
 
-export default function MainScreen() {
+export default function MainScreen({ navigation }) {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
@@ -22,10 +22,10 @@ export default function MainScreen() {
   }, []);
 
   const toggleFavorite = (recipe: Recipe) => {
-    if (favoriteRecipes.includes(recipe.name)) {
-      setFavoriteRecipes(favoriteRecipes.filter(item => item !== recipe.name));
+    if (favoriteRecipes.find(r => r.name === recipe.name)) {
+      setFavoriteRecipes(favoriteRecipes.filter(item => item.name !== recipe.name));
     } else {
-      setFavoriteRecipes([...favoriteRecipes, recipe.name]);
+      setFavoriteRecipes([...favoriteRecipes, recipe]);
     }
   };
 
@@ -37,7 +37,7 @@ export default function MainScreen() {
             <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
             <Text style={styles.greeting}>Hello Abdullah</Text>
           </View>
-          <TouchableOpacity onPress={() => { /* Placeholder for sign-out functionality */ }}>
+          <TouchableOpacity onPress={() => navigation.navigate('profile', { favoriteRecipes })}>
             <Ionicons name="log-out-outline" size={25} color="#000" />
           </TouchableOpacity>
         </View>
@@ -80,7 +80,7 @@ export default function MainScreen() {
             <RecipeCard
               key={index}
               recipe={recipe}
-              isFavorite={favoriteRecipes.includes(recipe.name)}
+              isFavorite={favoriteRecipes.find(r => r.name === recipe.name) !== undefined}
               onPress={() => setSelectedRecipe(recipe)}
               onToggleFavorite={() => toggleFavorite(recipe)}
             />
@@ -98,10 +98,10 @@ export default function MainScreen() {
                     <Ionicons name="arrow-back-outline" size={25} color="#000" />
                   </Pressable>
                   <Pressable onPress={() => toggleFavorite(selectedRecipe)} style={styles.favoriteButton}>
-                    <Ionicons name={favoriteRecipes.includes(selectedRecipe.name) ? "heart" : "heart-outline"} size={25} color={favoriteRecipes.includes(selectedRecipe.name) ? "#ff0000" : "#000"} />
+                    <Ionicons name={favoriteRecipes.find(r => r.name === selectedRecipe.name) ? "heart" : "heart-outline"} size={25} color={favoriteRecipes.find(r => r.name === selectedRecipe.name) ? "#ff0000" : "#000"} />
                   </Pressable>
                 </View>
-                <Image source={selectedRecipe.image} style={styles.modalImage} />
+                <Image source={{ uri: selectedRecipe.image }} style={styles.modalImage} />
                 <Text style={styles.modalTitle}>{selectedRecipe.name}</Text>
                 <View style={styles.detailsContainer}>
                   <View style={styles.detailItem}>
@@ -123,7 +123,7 @@ export default function MainScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Ingredients</Text>
-                  {selectedRecipe.ingredients.map((ingredient: any, index: React.Key | null | undefined) => (
+                  {selectedRecipe.ingredients.map((ingredient, index) => (
                     <Text key={index} style={styles.ingredientText}>
                       {`\u2022 ${ingredient}`}
                     </Text>
@@ -131,7 +131,7 @@ export default function MainScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Steps</Text>
-                  {selectedRecipe.steps.map((step: string, index: number) => (
+                  {selectedRecipe.steps.map((step, index) => (
                     <Text key={index} style={styles.stepText}>
                       {`${index + 1}. ${step}`}
                     </Text>
