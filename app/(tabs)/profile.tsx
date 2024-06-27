@@ -1,16 +1,11 @@
-import React, { ReactNode, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RecipeCard from '@/components/RecipeCard';
 import { FontAwesome } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-
-interface Recipe {
-  name: string;
-  image: any;
-  details: string;
-}
+import { auth } from '@/firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface FavoriteRecipe {
   name: string;
@@ -21,7 +16,6 @@ interface FavoriteRecipe {
 
 interface User {
   name: string;
-  phone: string;
   email: string;
   password: string;
   photo: any;
@@ -31,8 +25,7 @@ interface User {
 export default function ProfileScreen() {
   const [user, setUser] = useState<User>({
     name: 'Abdullah Al Matawah',
-    phone: '966558762415',
-    email: 'abdullaham1422@gmail.com',
+    email: '',
     password: '******',
     photo: require('@/assets/images/profile.png'),
     favorites: [
@@ -42,6 +35,19 @@ export default function ProfileScreen() {
   });
 
   const [expandedRecipe, setExpandedRecipe] = useState<FavoriteRecipe | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          email: firebaseUser.email || '',
+        }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const toggleFavorite = (index: number) => {
     const updatedFavorites = [...user.favorites];
@@ -59,22 +65,12 @@ export default function ProfileScreen() {
         <Text style={styles.name}>{user.name}</Text>
       </View>
       <View style={styles.inputContainer}>
-        <Ionicons name="call-outline" size={20} color="#000" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="Phone Number"
-          placeholderTextColor="#888"
-          value=""
-          editable={false}
-        />
-      </View>
-      <View style={styles.inputContainer}>
         <Ionicons name="mail-outline" size={20} color="#000" style={styles.icon} />
         <TextInput
           style={styles.input}
           placeholder="Email"
           placeholderTextColor="#888"
-          value=""
+          value={user.email}
           editable={false}
         />
       </View>
@@ -84,10 +80,11 @@ export default function ProfileScreen() {
           style={styles.input}
           placeholder="Password"
           placeholderTextColor="#888"
-          value=""
+          value={user.password}
           editable={false}
           secureTextEntry
         />
+        <Ionicons name="create-outline" size={20} color="#000" style={styles.changeIcon} />
       </View>
       <Text style={styles.sectionTitle}>Favorite Recipes</Text>
       <View style={styles.favoritesContainer}>
@@ -183,6 +180,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
+  },
+  changeIcon: {
+    marginLeft: 10,
   },
   sectionTitle: {
     fontSize: 20,

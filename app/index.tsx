@@ -27,6 +27,7 @@ export default function SignInScreen() {
   };
 
   const getErrorMessage = (errorCode: string): string => {
+    console.log(errorCode)
     switch (errorCode) {
       case 'auth/invalid-email':
         return 'The email address is not valid.';

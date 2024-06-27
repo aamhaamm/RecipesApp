@@ -131,9 +131,6 @@ export default function SignUpScreen() {
           <Pressable style={styles.button} onPress={handleSignUp}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </Pressable>
-          <Pressable style={styles.link} onPress={() => router.push('/index')}>
-            <Text style={styles.linkText}>Already have an account? Sign In</Text>
-          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -215,13 +212,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
     textAlign: 'center',
-  },
-  link: {
-    marginTop: 20,
-  },
-  linkText: {
-    color: '#CBE25B',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
