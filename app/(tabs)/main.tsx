@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import RecipeCard, { Recipe, exampleRecipes } from '@/components/RecipeCard';
+import RecipeCard, { Recipe } from '@/components/RecipeCard';
+import { fetchRecipes } from '@/components/firestoreService';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+
+  useEffect(() => {
+    const loadRecipes = async () => {
+      const fetchedRecipes = await fetchRecipes();
+      setRecipes(fetchedRecipes);
+    };
+    loadRecipes();
+  }, []);
 
   const toggleFavorite = (recipe: Recipe) => {
     if (favoriteRecipes.includes(recipe.name)) {
@@ -66,7 +76,7 @@ export default function MainScreen() {
         </ScrollView>
         <Text style={styles.sectionTitle}>Recipes</Text>
         <View style={styles.recipesContainer}>
-          {exampleRecipes.map((recipe, index) => (
+          {recipes.map((recipe, index) => (
             <RecipeCard
               key={index}
               recipe={recipe}
@@ -121,11 +131,11 @@ export default function MainScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Steps</Text>
-                  {selectedRecipe.steps.map((step: string, index: number) => ( // Ensure index is typed as number
-                  <Text key={index} style={styles.stepText}>
-                    {`${index + 1}. ${step}`}
-                  </Text>
-                ))}
+                  {selectedRecipe.steps.map((step: string, index: number) => (
+                    <Text key={index} style={styles.stepText}>
+                      {`${index + 1}. ${step}`}
+                    </Text>
+                  ))}
                 </View>
               </View>
             </TouchableWithoutFeedback>

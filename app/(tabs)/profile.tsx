@@ -2,21 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import RecipeCard, { Recipe, exampleRecipes } from '@/components/RecipeCard';
-import { FontAwesome } from '@expo/vector-icons';
+import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-export default function ProfileScreen() {
+interface ProfileScreenProps {
+  favoriteRecipes: Recipe[];
+}
+
+export default function ProfileScreen({ favoriteRecipes }: ProfileScreenProps) {
   const [user, setUser] = useState({
     name: 'Abdullah Al Matawah',
     email: '',
     password: '******',
     photo: require('@/assets/images/profile.png'),
-    favorites: exampleRecipes.map(recipe => ({
-      ...recipe,
-      isFavorite: true,
-    })),
+    favorites: favoriteRecipes || [],
   });
 
   const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
@@ -73,15 +74,19 @@ export default function ProfileScreen() {
       </View>
       <Text style={styles.sectionTitle}>Favorite Recipes</Text>
       <View style={styles.favoritesContainer}>
-        {user.favorites.map((recipe, index) => (
-          <RecipeCard
-            key={index}
-            recipe={recipe}
-            isFavorite={recipe.isFavorite}
-            onPress={() => setExpandedRecipe(recipe)}
-            onToggleFavorite={() => toggleFavorite(index)}
-          />
-        ))}
+        {user.favorites.length > 0 ? (
+          user.favorites.map((recipe, index) => (
+            <RecipeCard
+              key={index}
+              recipe={recipe}
+              isFavorite={recipe.isFavorite}
+              onPress={() => setExpandedRecipe(recipe)}
+              onToggleFavorite={() => toggleFavorite(index)}
+            />
+          ))
+        ) : (
+          <Text>No favorite recipes found.</Text>
+        )}
       </View>
 
       {expandedRecipe && (
@@ -102,7 +107,7 @@ export default function ProfileScreen() {
                     <FontAwesome name="heart" size={24} color={expandedRecipe.isFavorite ? "#F00" : "#CCC"} />
                   </Pressable>
                 </View>
-                <Image source={expandedRecipe.image} style={styles.modalImage} />
+                <Image source={{ uri: expandedRecipe.image }} style={styles.modalImage} />
                 <Text style={styles.modalTitle}>{expandedRecipe.name}</Text>
                 <View style={styles.detailsContainer}>
                   <View style={styles.detailItem}>
@@ -124,7 +129,7 @@ export default function ProfileScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Ingredients</Text>
-                  {expandedRecipe.ingredients.map((ingredient: any, index: React.Key | null | undefined) => (
+                  {expandedRecipe.ingredients.map((ingredient, index) => (
                     <Text key={index} style={styles.ingredientText}>
                       {`\u2022 ${ingredient}`}
                     </Text>
@@ -132,7 +137,7 @@ export default function ProfileScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Steps</Text>
-                  {expandedRecipe.steps.map((step: string, index: number) => (
+                  {expandedRecipe.steps.map((step, index) => (
                     <Text key={index} style={styles.stepText}>
                       {`${index + 1}. ${step}`}
                     </Text>
@@ -233,9 +238,6 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     alignItems: 'flex-start',
-  },
-  favoriteButton: {
-    alignItems: 'flex-end',
   },
   modalImage: {
     width: '100%',
