@@ -70,7 +70,7 @@ export default function ProfileScreen() {
             <RecipeCard
               key={index}
               recipe={recipe}
-              isFavorite={recipe.isFavorite}
+              isFavorite={true} // This ensures the red heart icon is shown
               onPress={() => setExpandedRecipe(recipe)}
               onToggleFavorite={() => toggleFavorite(recipe)}
             />

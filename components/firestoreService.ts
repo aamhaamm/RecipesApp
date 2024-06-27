@@ -1,18 +1,6 @@
 import { db } from '@/firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
-
-export interface Recipe {
-  name: string;
-  image: string;
-  details: string[];
-  time: string;
-  servings: string;
-  calories: string;
-  difficulty: string;
-  ingredients: string[];
-  steps: string[];
-  isFavorite: boolean;
-}
+import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
+import { Recipe } from '@/components/RecipeCard';
 
 export const fetchRecipes = async (): Promise<Recipe[]> => {
   try {
@@ -23,5 +11,28 @@ export const fetchRecipes = async (): Promise<Recipe[]> => {
   } catch (error) {
     console.error("Error fetching recipes: ", error);
     return [];
+  }
+};
+
+export const fetchUserFavorites = async (userId: string): Promise<Recipe[]> => {
+  try {
+    const userFavoritesCol = collection(db, 'users', userId, 'favorites');
+    const favoritesSnapshot = await getDocs(userFavoritesCol);
+    const favoritesList = favoritesSnapshot.docs.map(doc => doc.data() as Recipe);
+    return favoritesList;
+  } catch (error) {
+    console.error("Error fetching user favorites: ", error);
+    return [];
+  }
+};
+
+export const saveUserFavorites = async (userId: string, favorites: Recipe[]) => {
+  try {
+    const userFavoritesCol = collection(db, 'users', userId, 'favorites');
+    for (const recipe of favorites) {
+      await setDoc(doc(userFavoritesCol, recipe.name), recipe);
+    }
+  } catch (error) {
+    console.error("Error saving user favorites: ", error);
   }
 };
