@@ -1,20 +1,9 @@
+// RecipeCard.tsx
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, TouchableOpacity, Image, View, Animated } from 'react-native';
 import { Text } from '@/components/Themed';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-export interface Recipe {
-  isFavorite: any;
-  name: string;
-  image: any;
-  details: string;
-  time: string;
-  servings: string;
-  calories: string;
-  difficulty: string;
-  ingredients: string[];
-  steps: string[];
-}
+import { Recipe } from '@/components/types';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -23,34 +12,7 @@ interface RecipeCardProps {
   onToggleFavorite: () => void;
 }
 
-const exampleRecipes: Recipe[] = [
-  {
-    name: 'Beef and Mustard Pie',
-    image: require('@/assets/images/beef_pie.jpg'),
-    details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock',
-    time: '35 Mins',
-    servings: '03 Servings',
-    calories: '103 Cal',
-    difficulty: 'Easy',
-    ingredients: ['1kg Beef', '2 tbs Plain Flour', '2 tbs Rapeseed Oil', '400ml Beef Stock'],
-    steps: ['Preheat oven to 200°C', 'Mix ingredients', 'Bake for 45 mins'],
-    isFavorite: undefined
-  },
-  {
-    name: 'Beef and Oyster pie',
-    image: require('@/assets/images/oyster_pie.jpg'),
-    details: '1kg Beef, 2 tbs Plain Flour, 2 tbs Rapeseed Oil, 400ml Beef Stock',
-    time: '40 Mins',
-    servings: '04 Servings',
-    calories: '120 Cal',
-    difficulty: 'Medium',
-    ingredients: ['1kg Beef', '2 tbs Plain Flour', '2 tbs Rapeseed Oil', '400ml Beef Stock'],
-    steps: ['Preheat oven to 200°C', 'Mix ingredients', 'Bake for 45 mins'],
-    isFavorite: undefined
-  }
-];
-
-export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavorite }: RecipeCardProps) {
+const RecipeCard = ({ recipe, isFavorite, onPress, onToggleFavorite }: RecipeCardProps) => {
   const translateY = useRef(new Animated.Value(50)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -97,9 +59,7 @@ export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavori
       </TouchableOpacity>
     </Animated.View>
   );
-}
-
-export { exampleRecipes };
+};
 
 const styles = StyleSheet.create({
   recipeCard: {
@@ -150,3 +110,5 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
+
+export default RecipeCard;

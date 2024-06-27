@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import RecipeCard, { Recipe, exampleRecipes } from '@/components/RecipeCard';
-import { FontAwesome } from '@expo/vector-icons';
-import { auth } from '@/firebaseConfig';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RecipeCard from '@/components/RecipeCard';
+import { Recipe } from '@/components/types';
+import { exampleRecipes } from '@/components/exampleRecipes';
+import { auth, db } from '@/firebaseConfig';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 export default function ProfileScreen() {
@@ -13,10 +16,7 @@ export default function ProfileScreen() {
     email: '',
     password: '******',
     photo: require('@/assets/images/profile.png'),
-    favorites: exampleRecipes.map(recipe => ({
-      ...recipe,
-      isFavorite: true,
-    })),
+    favorites: [] as Recipe[],
   });
 
   const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
@@ -28,18 +28,48 @@ export default function ProfileScreen() {
           ...prevUser,
           email: firebaseUser.email || '',
         }));
+        fetchFavorites(firebaseUser.uid);
       }
     });
+
+    const fetchFavorites = async (userId: string) => {
+      const userRef = doc(db, 'users', userId);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        const favoriteNames = docSnap.data().favorites || [];
+        const favoriteRecipes = exampleRecipes.filter((recipe) => favoriteNames.includes(recipe.name));
+        setUser((prevUser) => ({
+          ...prevUser,
+          favorites: favoriteRecipes,
+        }));
+      }
+    };
 
     return () => unsubscribe();
   }, []);
 
-  const toggleFavorite = (index: number) => {
+  const toggleFavorite = async (index: number) => {
     const updatedFavorites = [...user.favorites];
-    updatedFavorites[index].isFavorite = !updatedFavorites[index].isFavorite;
+    const recipe = updatedFavorites[index];
+    recipe.isFavorite = !recipe.isFavorite;
     setUser({ ...user, favorites: updatedFavorites });
-  };
 
+    const userAuth = auth.currentUser;
+    if (userAuth) {
+      const userRef = doc(db, 'users', userAuth.uid);
+      const docSnap = await getDoc(userRef);
+      let favorites = [];
+      if (docSnap.exists()) {
+        favorites = docSnap.data().favorites || [];
+      }
+      if (favorites.includes(recipe.name)) {
+        favorites = favorites.filter((fav: string) => fav !== recipe.name);
+      } else {
+        favorites.push(recipe.name);
+      }
+      await setDoc(userRef, { favorites }, { merge: true });
+    }
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -110,12 +140,12 @@ export default function ProfileScreen() {
                     <Text style={styles.detailText}>{expandedRecipe.time}</Text>
                   </View>
                   <View style={styles.detailItem}>
-                    <FontAwesome name="users" size={16} color="#333" />
-                    <Text style={styles.detailText}>{expandedRecipe.servings}</Text>
-                  </View>
-                  <View style={styles.detailItem}>
                     <FontAwesome name="fire" size={16} color="#333" />
                     <Text style={styles.detailText}>{expandedRecipe.calories}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="users" size={16} color="#333" />
+                    <Text style={styles.detailText}>{expandedRecipe.servings}</Text>
                   </View>
                   <View style={styles.detailItem}>
                     <FontAwesome name="check-circle" size={16} color="#333" />
@@ -124,7 +154,7 @@ export default function ProfileScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Ingredients</Text>
-                  {expandedRecipe.ingredients.map((ingredient: any, index: React.Key | null | undefined) => (
+                  {expandedRecipe.ingredients.map((ingredient: any, index: number) => (
                     <Text key={index} style={styles.ingredientText}>
                       {`\u2022 ${ingredient}`}
                     </Text>
@@ -247,11 +277,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
   },
   detailsContainer: {
     flexDirection: 'row',
