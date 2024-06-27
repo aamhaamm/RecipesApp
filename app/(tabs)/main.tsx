@@ -1,13 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import RecipeCard from '@/components/RecipeCard';
-import { Recipe } from '@/components/types';
-import { exampleRecipes } from '@/components/exampleRecipes';
-import { auth, db } from '@/firebaseConfig';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import RecipeCard, { Recipe, exampleRecipes } from '@/components/RecipeCard';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
@@ -15,99 +11,75 @@ export default function MainScreen() {
   const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          setFavoriteRecipes(docSnap.data().favorites || []);
-        }
-      }
-    };
-
-    fetchFavorites();
-  }, []);
-
-  const toggleFavorite = async (recipe: Recipe) => {
-    const user = auth.currentUser;
-    if (user) {
-      const userRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(userRef);
-      let favorites = [];
-      if (docSnap.exists()) {
-        favorites = docSnap.data().favorites || [];
-      }
-      if (favorites.includes(recipe.name)) {
-        favorites = favorites.filter((fav: string) => fav !== recipe.name);
-      } else {
-        favorites.push(recipe.name);
-      }
-      await setDoc(userRef, { favorites }, { merge: true });
-      setFavoriteRecipes(favorites);
+  const toggleFavorite = (recipe: Recipe) => {
+    if (favoriteRecipes.includes(recipe.name)) {
+      setFavoriteRecipes(favoriteRecipes.filter(item => item !== recipe.name));
+    } else {
+      setFavoriteRecipes([...favoriteRecipes, recipe.name]);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.profileContainer}>
-          <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-          <Text style={styles.greeting}>Hello Abdullah</Text>
-        </View>
-        <TouchableOpacity onPress={() => { /* Placeholder for sign-out functionality */ }}>
-          <Ionicons name="log-out-outline" size={25} color="#000" />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.title}>
-        Make your own food, <Text style={styles.highlight}>stay at home</Text>
-      </Text>
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color="#000" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search any recipe"
-          value={search}
-          onChangeText={setSearch}
-        />
-      </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
-        {[
-          { name: 'Beef', image: require('@/assets/images/beef.jpg') },
-          { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
-          { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
-          { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
-          { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
-        ].map((category, index) => (
-          <TouchableOpacity 
-            key={index} 
-            style={[
-              styles.category, 
-              selectedCategory === category.name && styles.selectedCategory
-            ]} 
-            onPress={() => setSelectedCategory(category.name)}
-          >
-            <Image source={category.image} style={styles.categoryImage} />
-            <Text style={styles.categoryText}>{category.name}</Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+        <View style={styles.header}>
+          <View style={styles.profileContainer}>
+            <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
+            <Text style={styles.greeting}>Hello Abdullah</Text>
+          </View>
+          <TouchableOpacity onPress={() => { /* Placeholder for sign-out functionality */ }}>
+            <Ionicons name="log-out-outline" size={25} color="#000" />
           </TouchableOpacity>
-        ))}
-      </ScrollView>
-      <Text style={styles.sectionTitle}>Recipes</Text>
-      <View style={styles.recipesContainer}>
-        {exampleRecipes.map((recipe: Recipe, index: number) => (
-          <RecipeCard
-            key={index}
-            recipe={recipe}
-            isFavorite={favoriteRecipes.includes(recipe.name)}
-            onPress={() => setSelectedRecipe(recipe)}
-            onToggleFavorite={() => toggleFavorite(recipe)}
+        </View>
+        <Text style={styles.title}>
+          Make your own food, <Text style={styles.highlight}>stay at home</Text>
+        </Text>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} color="#000" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search any recipe"
+            value={search}
+            onChangeText={setSearch}
           />
-        ))}
-      </View>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
+          {[
+            { name: 'Beef', image: require('@/assets/images/beef.jpg') },
+            { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
+            { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
+            { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
+            { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
+          ].map((category, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[
+                styles.category, 
+                selectedCategory === category.name && styles.selectedCategory
+              ]} 
+              onPress={() => setSelectedCategory(category.name)}
+            >
+              <Image source={category.image} style={styles.categoryImage} />
+              <Text style={styles.categoryText}>{category.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <Text style={styles.sectionTitle}>Recipes</Text>
+        <View style={styles.recipesContainer}>
+          {exampleRecipes.map((recipe, index) => (
+            <RecipeCard
+              key={index}
+              recipe={recipe}
+              isFavorite={favoriteRecipes.includes(recipe.name)}
+              onPress={() => setSelectedRecipe(recipe)}
+              onToggleFavorite={() => toggleFavorite(recipe)}
+            />
+          ))}
+        </View>
+      </ScrollView>
 
       {selectedRecipe && (
-        <Modal visible={true} transparent={true} onRequestClose={() => setSelectedRecipe(null)}>
+        <Modal visible={true} transparent={true}>
           <Pressable style={styles.modalContainer} onPress={() => setSelectedRecipe(null)}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalContent}>
@@ -127,12 +99,12 @@ export default function MainScreen() {
                     <Text style={styles.detailText}>{selectedRecipe.time}</Text>
                   </View>
                   <View style={styles.detailItem}>
-                    <FontAwesome name="fire" size={16} color="#333" />
-                    <Text style={styles.detailText}>{selectedRecipe.calories}</Text>
-                  </View>
-                  <View style={styles.detailItem}>
                     <FontAwesome name="users" size={16} color="#333" />
                     <Text style={styles.detailText}>{selectedRecipe.servings}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <FontAwesome name="fire" size={16} color="#333" />
+                    <Text style={styles.detailText}>{selectedRecipe.calories}</Text>
                   </View>
                   <View style={styles.detailItem}>
                     <FontAwesome name="check-circle" size={16} color="#333" />
@@ -141,7 +113,7 @@ export default function MainScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Ingredients</Text>
-                  {selectedRecipe.ingredients.map((ingredient: any, index: number) => (
+                  {selectedRecipe.ingredients.map((ingredient: any, index: React.Key | null | undefined) => (
                     <Text key={index} style={styles.ingredientText}>
                       {`\u2022 ${ingredient}`}
                     </Text>
@@ -149,33 +121,35 @@ export default function MainScreen() {
                 </View>
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>Steps</Text>
-                  {selectedRecipe.steps.map((step: string, index: number) => (
-                    <Text key={index} style={styles.stepText}>
-                      {`${index + 1}. ${step}`}
-                    </Text>
-                  ))}
+                  {selectedRecipe.steps.map((step: string, index: number) => ( // Ensure index is typed as number
+                  <Text key={index} style={styles.stepText}>
+                    {`${index + 1}. ${step}`}
+                  </Text>
+                ))}
                 </View>
               </View>
             </TouchableWithoutFeedback>
           </Pressable>
         </Modal>
       )}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  scrollContentContainer: {
     paddingHorizontal: 20,
-    paddingTop: 40,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 20,
+    paddingTop: 40,
   },
   profileContainer: {
     flexDirection: 'row',
@@ -242,7 +216,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginVertical: 20,
+    marginVertical: 10,
     color: '#000',
   },
   recipesContainer: {
@@ -254,7 +228,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
     width: '90%',
@@ -284,6 +258,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
   detailsContainer: {
     flexDirection: 'row',
