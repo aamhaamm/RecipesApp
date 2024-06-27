@@ -3,7 +3,6 @@ import { StyleSheet, TouchableOpacity, Image, View, Animated } from 'react-nativ
 import { Text } from '@/components/Themed';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-
 export interface Recipe {
   isFavorite: any;
   name: string;
@@ -85,10 +84,14 @@ export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavori
         <View style={styles.cardContent}>
           <Text style={styles.recipeText}>{recipe.name}</Text>
           <View style={styles.recipeDetails}>
-            <Text style={styles.detailText}>{recipe.time}</Text>
-            <Text style={styles.detailText}>{recipe.servings}</Text>
-            <Text style={styles.detailText}>{recipe.calories}</Text>
-            <Text style={styles.detailText}>{recipe.difficulty}</Text>
+            <View style={styles.detailColumn}>
+              <Text style={styles.detailText}>{recipe.time}</Text>
+              <Text style={styles.detailText}>{recipe.calories}</Text>
+            </View>
+            <View style={styles.detailColumn}>
+              <Text style={styles.detailText}>{recipe.servings}</Text>
+              <Text style={styles.detailText}>{recipe.difficulty}</Text>
+            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -135,7 +138,12 @@ const styles = StyleSheet.create({
     right: 10,
   },
   recipeDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 10,
+  },
+  detailColumn: {
+    flex: 1,
   },
   detailText: {
     fontSize: 12,
