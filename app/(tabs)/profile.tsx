@@ -6,26 +6,18 @@ import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useFavorites } from '@/components/FavoritesContext';
 
-interface ProfileScreenProps {
-  route?: {
-    params?: {
-      favoriteRecipes: Recipe[];
-    };
-  };
-}
+export default function ProfileScreen() {
+  const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
+  const { favoriteRecipes, toggleFavorite } = useFavorites();
 
-export default function ProfileScreen({ route }: ProfileScreenProps) {
-  const favoriteRecipes = route?.params?.favoriteRecipes || [];
   const [user, setUser] = useState({
     name: 'Abdullah Al Matawah',
     email: '',
     password: '******',
     photo: require('@/assets/images/profile.png'),
-    favorites: favoriteRecipes,
   });
-
-  const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -39,12 +31,6 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
 
     return () => unsubscribe();
   }, []);
-
-  const toggleFavorite = (index: number) => {
-    const updatedFavorites = [...user.favorites];
-    updatedFavorites[index].isFavorite = !updatedFavorites[index].isFavorite;
-    setUser({ ...user, favorites: updatedFavorites });
-  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -79,14 +65,14 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
       </View>
       <Text style={styles.sectionTitle}>Favorite Recipes</Text>
       <View style={styles.favoritesContainer}>
-        {user.favorites.length > 0 ? (
-          user.favorites.map((recipe, index) => (
+        {favoriteRecipes.length > 0 ? (
+          favoriteRecipes.map((recipe, index) => (
             <RecipeCard
               key={index}
               recipe={recipe}
               isFavorite={recipe.isFavorite}
               onPress={() => setExpandedRecipe(recipe)}
-              onToggleFavorite={() => toggleFavorite(index)}
+              onToggleFavorite={() => toggleFavorite(recipe)}
             />
           ))
         ) : (
@@ -108,7 +94,7 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
                   <Pressable onPress={() => setExpandedRecipe(null)} style={styles.closeButton}>
                     <Ionicons name="arrow-back" size={24} color="#000" />
                   </Pressable>
-                  <Pressable onPress={() => toggleFavorite(user.favorites.indexOf(expandedRecipe))}>
+                  <Pressable onPress={() => toggleFavorite(expandedRecipe)}>
                     <FontAwesome name="heart" size={24} color={expandedRecipe.isFavorite ? "#F00" : "#CCC"} />
                   </Pressable>
                 </View>

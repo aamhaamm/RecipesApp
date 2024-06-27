@@ -5,13 +5,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { fetchRecipes } from '@/components/firestoreService';
+import { useFavorites } from '@/components/FavoritesContext';
 
-export default function MainScreen({ navigation }) {
+export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+
+  const { favoriteRecipes, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -21,14 +23,6 @@ export default function MainScreen({ navigation }) {
     loadRecipes();
   }, []);
 
-  const toggleFavorite = (recipe: Recipe) => {
-    if (favoriteRecipes.find(r => r.name === recipe.name)) {
-      setFavoriteRecipes(favoriteRecipes.filter(item => item.name !== recipe.name));
-    } else {
-      setFavoriteRecipes([...favoriteRecipes, recipe]);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContentContainer}>
@@ -37,9 +31,6 @@ export default function MainScreen({ navigation }) {
             <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
             <Text style={styles.greeting}>Hello Abdullah</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('profile', { favoriteRecipes })}>
-            <Ionicons name="log-out-outline" size={25} color="#000" />
-          </TouchableOpacity>
         </View>
         <Text style={styles.title}>
           Make your own food, <Text style={styles.highlight}>stay at home</Text>
