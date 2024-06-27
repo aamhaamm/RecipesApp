@@ -21,6 +21,7 @@ export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const toggleFavorite = (recipe: Recipe) => {
     if (favoriteRecipes.includes(recipe.name)) {
@@ -34,10 +35,14 @@ export default function MainScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContentContainer}>
         <View style={styles.header}>
-          <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-          <Ionicons name="notifications-outline" size={25} color="#000" />
+          <View style={styles.profileContainer}>
+            <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
+            <Text style={styles.greeting}>Hello Abdullah</Text>
+          </View>
+          <TouchableOpacity onPress={() => { /* Placeholder for sign-out functionality */ }}>
+            <Ionicons name="log-out-outline" size={25} color="#000" />
+          </TouchableOpacity>
         </View>
-        <Text style={styles.greeting}>Hello Abdullah,</Text>
         <Text style={styles.title}>
           Make your own food, <Text style={styles.highlight}>stay at home</Text>
         </Text>
@@ -58,7 +63,14 @@ export default function MainScreen() {
             { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
             { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
           ].map((category, index) => (
-            <TouchableOpacity key={index} style={styles.category}>
+            <TouchableOpacity 
+              key={index} 
+              style={[
+                styles.category, 
+                selectedCategory === category.name && styles.selectedCategory
+              ]} 
+              onPress={() => setSelectedCategory(category.name)}
+            >
               <Image source={category.image} style={styles.categoryImage} />
               <Text style={styles.categoryText}>{category.name}</Text>
             </TouchableOpacity>
@@ -118,14 +130,21 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     paddingTop: 40,
   },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
   },
   greeting: {
+    marginLeft: 10,
     fontSize: 16,
-    color: '#666',
+    color: '#000',
+    fontStyle: 'italic',
+    textDecorationLine: 'underline',
   },
   title: {
     fontSize: 24,
@@ -152,11 +171,16 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     flexDirection: 'row',
-    marginVertical: 20,
+    marginVertical: 5,
   },
   category: {
     alignItems: 'center',
-    marginRight: 20,
+    marginRight: 15,
+    padding: 8,
+    borderRadius: 10,
+  },
+  selectedCategory: {
+    backgroundColor: '#CBE25B',
   },
   categoryImage: {
     width: 70,
