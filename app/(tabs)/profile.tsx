@@ -3,29 +3,33 @@ import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, Touch
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RecipeCard, { Recipe } from '@/components/RecipeCard';
-import { auth } from '@/firebaseConfig';
+import { auth, db } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useFavorites } from '@/components/FavoritesContext';
 
 export default function ProfileScreen() {
   const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
   const { favoriteRecipes, toggleFavorite } = useFavorites();
-
   const [user, setUser] = useState({
-    name: 'Abdullah Al Matawah',
+    name: '',
     email: '',
-    password: '******',
     photo: require('@/assets/images/profile.png'),
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser((prevUser) => ({
-          ...prevUser,
-          email: firebaseUser.email || '',
-        }));
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUser({
+            name: userData.name,
+            email: firebaseUser.email || '',
+            photo: require('@/assets/images/profile.png'),
+          });
+        }
       }
     });
 
@@ -51,18 +55,6 @@ export default function ProfileScreen() {
           editable={false}
         />
       </View>
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color="#000" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#888"
-          value={user.password}
-          editable={false}
-          secureTextEntry
-        />
-        <Ionicons name="create-outline" size={20} color="#000" style={styles.changeIcon} />
-      </View>
       <Text style={styles.sectionTitle}>Favorite Recipes</Text>
       <View style={styles.favoritesContainer}>
         {favoriteRecipes.length > 0 ? (
@@ -70,7 +62,7 @@ export default function ProfileScreen() {
             <RecipeCard
               key={index}
               recipe={recipe}
-              isFavorite={true} // This ensures the red heart icon is shown
+              isFavorite={true}
               onPress={() => setExpandedRecipe(recipe)}
               onToggleFavorite={() => toggleFavorite(recipe)}
             />

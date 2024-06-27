@@ -3,8 +3,9 @@ import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, Scrol
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
-import { auth } from '@/firebaseConfig';
+import { auth, db } from '@/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -12,22 +13,32 @@ export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSignIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential: { user: any; }) => {
-        // Signed in
-        const user = userCredential.user;
-        setError(null);
-        router.push('/main');
-      })
-      .catch((error: { code: any; message: any; }) => {
-        const errorMessage = getErrorMessage(error.code);
+  const handleSignIn = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Fetch additional user information from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // Save the user name in some global state or context if necessary
+        console.log('User data:', userData);
+      }
+
+      setError(null);
+      router.push('/main');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        const errorMessage = getErrorMessage((error as any).code);
         setError(errorMessage);
-      });
+      } else {
+        setError('An unknown error occurred. Please try again.');
+      }
+    }
   };
 
   const getErrorMessage = (errorCode: string): string => {
-    console.log(errorCode)
     switch (errorCode) {
       case 'auth/invalid-email':
         return 'The email address is not valid.';

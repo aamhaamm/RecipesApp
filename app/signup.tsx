@@ -3,8 +3,9 @@ import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, Scrol
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
-import { auth } from '@/firebaseConfig';
+import { auth, db } from '@/firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore';
 
 export default function SignUpScreen() {
   const [name, setName] = useState('');
@@ -14,22 +15,31 @@ export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential: { user: any; }) => {
-        // Signed up
-        const user = userCredential.user;
-        setError(null);
-        router.push('/main');
-      })
-      .catch((error: { code: any; message: any; }) => {
-        const errorMessage = getErrorMessage(error.code);
-        setError(errorMessage);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Store additional user information in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name,
+        email,
       });
+
+      setError(null);
+      router.push('/main');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        const errorMessage = getErrorMessage((error as any).code);
+        setError(errorMessage);
+      } else {
+        setError('An unknown error occurred. Please try again.');
+      }
+    }
   };
 
   const getErrorMessage = (errorCode: string): string => {
