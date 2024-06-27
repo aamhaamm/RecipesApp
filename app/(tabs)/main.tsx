@@ -6,12 +6,16 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { fetchRecipes } from '@/components/firestoreService';
 import { useFavorites } from '@/components/FavoritesContext';
+import { auth, db } from '@/firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [userName, setUserName] = useState<string>('');
 
   const { favoriteRecipes, toggleFavorite } = useFavorites();
 
@@ -21,6 +25,18 @@ export default function MainScreen() {
       setRecipes(fetchedRecipes);
     };
     loadRecipes();
+
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserName(userData.name);
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -29,7 +45,7 @@ export default function MainScreen() {
         <View style={styles.header}>
           <View style={styles.profileContainer}>
             <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-            <Text style={styles.greeting}>Hello Abdullah</Text>
+            <Text style={styles.greeting}>Hello {userName}</Text>
           </View>
         </View>
         <Text style={styles.title}>
