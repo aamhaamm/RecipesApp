@@ -63,11 +63,12 @@ export default function MainScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
           {[
             { name: 'All', image: require('@/assets/images/all.png') },
+            { name: 'Salad', image: require('@/assets/images/Salad.jpg') },
             { name: 'Beef', image: require('@/assets/images/beef.jpg') },
             { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
+            { name: 'Seafoof', image: require('@/assets/images/Seafood.png') },
+            { name: 'Pasta', image: require('@/assets/images/Pasta.jpeg') },
             { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
-            { name: 'Lamb', image: require('@/assets/images/Lamb.jpg') },
-            { name: 'Miscellaneous', image: require('@/assets/images/Miscellaneous.jpeg') },
           ].map((category, index) => (
             <TouchableOpacity 
               key={index} 
@@ -222,8 +223,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBE25B',
   },
   categoryImage: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
     borderRadius: 35,
   },
   categoryText: {
