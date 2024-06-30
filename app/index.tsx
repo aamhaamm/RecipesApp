@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
+import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Animated, View, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
@@ -11,9 +11,11 @@ export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSignIn = async () => {
+    setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -35,6 +37,8 @@ export default function SignInScreen() {
       } else {
         setError('An unknown error occurred. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,9 +117,13 @@ export default function SignInScreen() {
             />
           </View>
           {error && <Text style={styles.errorText}>{error}</Text>}
-          <Pressable style={styles.button} onPress={handleSignIn}>
-            <Text style={styles.buttonText}>Sign In</Text>
-          </Pressable>
+          {loading ? (
+            <ActivityIndicator size="large" color="#CBE25B" />
+          ) : (
+            <Pressable style={styles.button} onPress={handleSignIn}>
+              <Text style={styles.buttonText}>Sign In</Text>
+            </Pressable>
+          )}
           <Pressable style={styles.link} onPress={() => router.push('/signup')}>
             <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
           </Pressable>

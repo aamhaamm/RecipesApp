@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Animated, View } from 'react-native';
+import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Animated, View, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
@@ -13,6 +13,7 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSignUp = async () => {
@@ -20,6 +21,7 @@ export default function SignUpScreen() {
       setError('Passwords do not match.');
       return;
     }
+    setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -39,6 +41,8 @@ export default function SignUpScreen() {
       } else {
         setError('An unknown error occurred. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,9 +142,13 @@ export default function SignUpScreen() {
             />
           </View>
           {error && <Text style={styles.errorText}>{error}</Text>}
-          <Pressable style={styles.button} onPress={handleSignUp}>
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </Pressable>
+          {loading ? (
+            <ActivityIndicator size="large" color="#CBE25B" />
+          ) : (
+            <Pressable style={styles.button} onPress={handleSignUp}>
+              <Text style={styles.buttonText}>Sign Up</Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
