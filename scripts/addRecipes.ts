@@ -1,7 +1,8 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { recipes } from "./recipes";
-import * as dotenv from "dotenv";
+// addRecipes.js
+const { initializeApp } = require('firebase/app');
+const { getFirestore, collection, addDoc } = require('firebase/firestore');
+const { recipes } = require('./recipes');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
