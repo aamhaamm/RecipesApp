@@ -13,7 +13,7 @@ import { doc, getDoc } from 'firebase/firestore';
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [userName, setUserName] = useState<string>('');
 
@@ -39,6 +39,39 @@ export default function MainScreen() {
     return () => unsubscribe();
   }, []);
 
+  const filterRecipes = () => {
+    if (selectedCategory === 'All') {
+      return recipes;
+    }
+    return recipes.filter(recipe => recipe.categories.includes(selectedCategory));
+  };
+
+  const renderCategories = () => {
+    const categories = [
+      { name: 'All', image: require('@/assets/images/all.png') },
+      { name: 'Salad', image: require('@/assets/images/Salad.jpg') },
+      { name: 'Beef', image: require('@/assets/images/beef.jpg') },
+      { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
+      { name: 'Seafood', image: require('@/assets/images/Seafood.png') },
+      { name: 'Pasta', image: require('@/assets/images/Pasta.jpeg') },
+      { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
+    ];
+
+    return categories.map((category, index) => (
+      <TouchableOpacity 
+        key={index} 
+        style={[
+          styles.category, 
+          selectedCategory === category.name && styles.selectedCategory
+        ]} 
+        onPress={() => setSelectedCategory(category.name)}
+      >
+        <Image source={category.image} style={styles.categoryImage} />
+        <Text style={styles.categoryText}>{category.name}</Text>
+      </TouchableOpacity>
+    ));
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContentContainer}>
@@ -61,31 +94,11 @@ export default function MainScreen() {
           />
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
-          {[
-            { name: 'All', image: require('@/assets/images/all.png') },
-            { name: 'Salad', image: require('@/assets/images/Salad.jpg') },
-            { name: 'Beef', image: require('@/assets/images/beef.jpg') },
-            { name: 'Chicken', image: require('@/assets/images/Chicken.jpg') },
-            { name: 'Seafoof', image: require('@/assets/images/Seafood.png') },
-            { name: 'Pasta', image: require('@/assets/images/Pasta.jpeg') },
-            { name: 'Dessert', image: require('@/assets/images/Dessert.png') },
-          ].map((category, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={[
-                styles.category, 
-                selectedCategory === category.name && styles.selectedCategory
-              ]} 
-              onPress={() => setSelectedCategory(category.name)}
-            >
-              <Image source={category.image} style={styles.categoryImage} />
-              <Text style={styles.categoryText}>{category.name}</Text>
-            </TouchableOpacity>
-          ))}
+          {renderCategories()}
         </ScrollView>
         <Text style={styles.sectionTitle}>Recipes</Text>
         <View style={styles.recipesContainer}>
-          {recipes.map((recipe, index) => (
+          {filterRecipes().map((recipe, index) => (
             <RecipeCard
               key={index}
               recipe={recipe}
@@ -134,7 +147,7 @@ export default function MainScreen() {
                   <Text style={styles.sectionTitle}>Ingredients</Text>
                   {selectedRecipe.ingredients.map((ingredient, index) => (
                     <Text key={index} style={styles.ingredientText}>
-                      {`\u2022 ${ingredient}`}
+                      • {ingredient}
                     </Text>
                   ))}
                 </View>
@@ -142,7 +155,7 @@ export default function MainScreen() {
                   <Text style={styles.sectionTitle}>Steps</Text>
                   {selectedRecipe.steps.map((step, index) => (
                     <Text key={index} style={styles.stepText}>
-                      {`${index + 1}. ${step}`}
+                      {index + 1}. {step}
                     </Text>
                   ))}
                 </View>
@@ -277,11 +290,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
   },
   detailsContainer: {
     flexDirection: 'row',

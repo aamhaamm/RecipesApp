@@ -4,6 +4,7 @@ import { Text } from '@/components/Themed';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 export interface Recipe {
+  categories: any;
   name: string;
   image: string;
   details: string[];
