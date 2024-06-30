@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { fetchRecipes } from '@/components/firestoreService';
 import { useFavorites } from '@/components/FavoritesContext';
-import { auth, db } from '@/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [userName, setUserName] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
   const { favoriteRecipes, toggleFavorite } = useFavorites();
 
@@ -23,21 +20,18 @@ export default function MainScreen() {
     const loadRecipes = async () => {
       const fetchedRecipes = await fetchRecipes();
       setRecipes(fetchedRecipes);
+      setLoading(false);
     };
     loadRecipes();
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUserName(userData.name);
-        }
-      }
-    });
-
-    return () => unsubscribe();
   }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#CBE25B" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -45,7 +39,7 @@ export default function MainScreen() {
         <View style={styles.header}>
           <View style={styles.profileContainer}>
             <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-            <Text style={styles.greeting}>Hello {userName}</Text>
+            <Text style={styles.greeting}>Hello Abdullah</Text>
           </View>
         </View>
         <Text style={styles.title}>
@@ -156,6 +150,12 @@ export default function MainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
   scrollContentContainer: {

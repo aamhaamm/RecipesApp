@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Image, View, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Animated } from 'react-native';
 import { Text } from '@/components/Themed';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
@@ -26,6 +26,8 @@ interface RecipeCardProps {
 export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavorite }: RecipeCardProps) {
   const translateY = useRef(new Animated.Value(50)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const imageOpacity = useRef(new Animated.Value(0)).current;
+  const imageScale = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
     Animated.timing(translateY, {
@@ -41,10 +43,28 @@ export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavori
     }).start();
   }, []);
 
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(imageOpacity, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(imageScale, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      })
+    ]).start();
+  }, []);
+
   return (
     <Animated.View style={[styles.recipeCard, { transform: [{ translateY }], opacity }]}>
       <TouchableOpacity style={styles.touchable} onPress={onPress}>
-        <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+        <Animated.Image
+          source={{ uri: recipe.image }}
+          style={[styles.recipeImage, { opacity: imageOpacity, transform: [{ scale: imageScale }] }]}
+        />
         <TouchableOpacity
           style={styles.heartIcon}
           onPress={(e) => {
