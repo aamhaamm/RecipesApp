@@ -1,5 +1,5 @@
 import { db } from '@/firebaseConfig';
-import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, deleteDoc } from 'firebase/firestore';
 import { Recipe } from '@/components/RecipeCard';
 
 export const fetchRecipes = async (): Promise<Recipe[]> => {
@@ -26,13 +26,24 @@ export const fetchUserFavorites = async (userId: string): Promise<Recipe[]> => {
   }
 };
 
-export const saveUserFavorites = async (userId: string, favorites: Recipe[]) => {
+export const addUserFavorite = async (userId: string, recipe: Recipe) => {
   try {
     const userFavoritesCol = collection(db, 'users', userId, 'favorites');
-    for (const recipe of favorites) {
-      await setDoc(doc(userFavoritesCol, recipe.name), recipe);
-    }
+    await setDoc(doc(userFavoritesCol, recipe.name), recipe);
+    console.log(`Added ${recipe.name} to favorites`);
   } catch (error) {
-    console.error("Error saving user favorites: ", error);
+    console.error("Error adding user favorite: ", error);
+    throw new Error("Failed to add favorite");
+  }
+};
+
+export const removeUserFavorite = async (userId: string, recipeName: string) => {
+  try {
+    const userFavoritesCol = collection(db, 'users', userId, 'favorites');
+    await deleteDoc(doc(userFavoritesCol, recipeName));
+    console.log(`Removed ${recipeName} from favorites`);
+  } catch (error) {
+    console.error("Error removing user favorite: ", error);
+    throw new Error("Failed to remove favorite");
   }
 };

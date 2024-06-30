@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Recipe } from '@/components/RecipeCard';
-import { fetchUserFavorites, saveUserFavorites } from '@/components/firestoreService';
+import { fetchUserFavorites, addUserFavorite, removeUserFavorite } from '@/components/firestoreService';
 import { auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -31,16 +31,28 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const toggleFavorite = async (recipe: Recipe) => {
-    let updatedFavorites;
-    if (favoriteRecipes.find(r => r.name === recipe.name)) {
-      updatedFavorites = favoriteRecipes.filter(item => item.name !== recipe.name);
-    } else {
-      updatedFavorites = [...favoriteRecipes, recipe];
-    }
-    setFavoriteRecipes(updatedFavorites);
+    const isFavorite = favoriteRecipes.some(r => r.name === recipe.name);
 
     if (userId) {
-      await saveUserFavorites(userId, updatedFavorites);
+      try {
+        if (isFavorite) {
+          await removeUserFavorite(userId, recipe.name);
+          setFavoriteRecipes(favoriteRecipes.filter(item => item.name !== recipe.name));
+        } else {
+          await addUserFavorite(userId, recipe);
+          setFavoriteRecipes([...favoriteRecipes, recipe]);
+        }
+        console.log("Favorites updated successfully in the database.");
+      } catch (error) {
+        console.error("Failed to update favorites in the database", error);
+      }
+    } else {
+      console.log("No user ID found, updating local state only.");
+      if (isFavorite) {
+        setFavoriteRecipes(favoriteRecipes.filter(item => item.name !== recipe.name));
+      } else {
+        setFavoriteRecipes([...favoriteRecipes, recipe]);
+      }
     }
   };
 
