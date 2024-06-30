@@ -1,15 +1,18 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC1Shm75Q8y23PcWOj514kHDFXPk76n5oY",
-  authDomain: "recipesapp-17a88.firebaseapp.com",
-  projectId: "recipesapp-17a88",
-  storageBucket: "recipesapp-17a88.appspot.com",
-  messagingSenderId: "1061430021445",
-  appId: "1:1061430021445:web:5836f5c352dd5eb0a5022c",
-  measurementId: "G-QV8KWDBP99"
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
