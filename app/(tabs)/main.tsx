@@ -289,6 +289,7 @@ const styles = StyleSheet.create({
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 7,
   },
   detailText: {
     marginLeft: 5,

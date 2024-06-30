@@ -87,7 +87,7 @@ export default function ProfileScreen() {
                     <Ionicons name="arrow-back" size={24} color="#000" />
                   </Pressable>
                   <Pressable onPress={() => toggleFavorite(expandedRecipe)}>
-                    <FontAwesome name="heart" size={24} color={expandedRecipe.isFavorite ? "#F00" : "#CCC"} />
+                    <FontAwesome name="heart" size={24} color="#F00" />
                   </Pressable>
                 </View>
                 <Image source={{ uri: expandedRecipe.image }} style={styles.modalImage} />
@@ -201,14 +201,17 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
+  closeButton: {
+    alignItems: 'flex-start',
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
@@ -219,8 +222,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  closeButton: {
+  backButton: {
     alignItems: 'flex-start',
+  },
+  favoriteButton: {
+    alignItems: 'flex-end',
   },
   modalImage: {
     width: '100%',
@@ -246,6 +252,7 @@ const styles = StyleSheet.create({
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 7,
   },
   detailText: {
     marginLeft: 5,
