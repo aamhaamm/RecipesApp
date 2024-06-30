@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, Image, View, TextInput, Modal, Pressable, TouchableWithoutFeedback, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -7,8 +7,9 @@ import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { fetchRecipes } from '@/components/firestoreService';
 import { useFavorites } from '@/components/FavoritesContext';
 import { auth, db } from '@/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { useRouter } from 'expo-router';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
@@ -16,14 +17,18 @@ export default function MainScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [userName, setUserName] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
 
   const { favoriteRecipes, toggleFavorite } = useFavorites();
+  const router = useRouter();
 
   useEffect(() => {
     const loadRecipes = async () => {
       const fetchedRecipes = await fetchRecipes();
       setRecipes(fetchedRecipes);
+      setLoading(false);
     };
+
     loadRecipes();
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -38,6 +43,17 @@ export default function MainScreen() {
 
     return () => unsubscribe();
   }, []);
+
+  const handleSignOut = async () => {
+    try {
+      console.log("Attempting to sign out...");
+      await signOut(auth);
+      console.log("Signed out successfully");
+      router.replace('/')
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
 
   const filterRecipes = () => {
     if (selectedCategory === 'All') {
@@ -74,42 +90,48 @@ export default function MainScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContentContainer}>
-        <View style={styles.header}>
-          <View style={styles.profileContainer}>
-            <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-            <Text style={styles.greeting}>Hello {userName}</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color="#CBE25B" style={styles.loader} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+          <View style={styles.header}>
+            <View style={styles.profileContainer}>
+              <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
+              <Text style={styles.greeting}>Hello {userName}</Text>
+            </View>
+            <Pressable onPress={handleSignOut} style={styles.signOutButton}>
+              <Ionicons name="log-out-outline" size={25} color="#000" />
+            </Pressable>
           </View>
-        </View>
-        <Text style={styles.title}>
-          Make your own food, <Text style={styles.highlight}>stay at home</Text>
-        </Text>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search-outline" size={20} color="#000" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search any recipe"
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
-          {renderCategories()}
-        </ScrollView>
-        <Text style={styles.sectionTitle}>Recipes</Text>
-        <View style={styles.recipesContainer}>
-          {filterRecipes().map((recipe, index) => (
-            <RecipeCard
-              key={index}
-              recipe={recipe}
-              isFavorite={favoriteRecipes.find(r => r.name === recipe.name) !== undefined}
-              onPress={() => setSelectedRecipe(recipe)}
-              onToggleFavorite={() => toggleFavorite(recipe)}
+          <Text style={styles.title}>
+            Make your own food, <Text style={styles.highlight}>stay at home</Text>
+          </Text>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search-outline" size={20} color="#000" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search any recipe"
+              value={search}
+              onChangeText={setSearch}
             />
-          ))}
-        </View>
-      </ScrollView>
-
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
+            {renderCategories()}
+          </ScrollView>
+          <Text style={styles.sectionTitle}>Recipes</Text>
+          <View style={styles.recipesContainer}>
+            {filterRecipes().map((recipe, index) => (
+              <RecipeCard
+                key={index}
+                recipe={recipe}
+                isFavorite={favoriteRecipes.find(r => r.name === recipe.name) !== undefined}
+                onPress={() => setSelectedRecipe(recipe)}
+                onToggleFavorite={() => toggleFavorite(recipe)}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      )}
       {selectedRecipe && (
         <Modal visible={true} transparent={true}>
           <Pressable style={styles.modalContainer} onPress={() => setSelectedRecipe(null)}>
@@ -198,6 +220,9 @@ const styles = StyleSheet.create({
     color: '#000',
     fontStyle: 'italic',
     textDecorationLine: 'underline',
+  },
+  signOutButton: {
+    padding: 10,
   },
   title: {
     fontSize: 24,
@@ -317,5 +342,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     marginTop: 5,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
