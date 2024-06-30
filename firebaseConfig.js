@@ -28,3 +28,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export { auth, db };
+
+console.log('FIREBASE_API_KEY:', FIREBASE_API_KEY);
+console.log('FIREBASE_AUTH_DOMAIN:', FIREBASE_AUTH_DOMAIN);
+console.log('FIREBASE_PROJECT_ID:', FIREBASE_PROJECT_ID);
+console.log('FIREBASE_STORAGE_BUCKET:', FIREBASE_STORAGE_BUCKET);
+console.log('FIREBASE_MESSAGING_SENDER_ID:', FIREBASE_MESSAGING_SENDER_ID);
+console.log('FIREBASE_APP_ID:', FIREBASE_APP_ID);
+console.log('FIREBASE_MEASUREMENT_ID:', FIREBASE_MEASUREMENT_ID);
