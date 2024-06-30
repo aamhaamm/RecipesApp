@@ -36,6 +36,13 @@ export default function ProfileScreen() {
     return () => unsubscribe();
   }, []);
 
+  const handleToggleFavorite = (recipe: Recipe) => {
+    toggleFavorite(recipe);
+    if (expandedRecipe && expandedRecipe.name === recipe.name) {
+      setExpandedRecipe({ ...expandedRecipe, isFavorite: !expandedRecipe.isFavorite });
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -64,7 +71,7 @@ export default function ProfileScreen() {
               recipe={recipe}
               isFavorite={true}
               onPress={() => setExpandedRecipe(recipe)}
-              onToggleFavorite={() => toggleFavorite(recipe)}
+              onToggleFavorite={() => handleToggleFavorite(recipe)}
             />
           ))
         ) : (
@@ -86,8 +93,8 @@ export default function ProfileScreen() {
                   <Pressable onPress={() => setExpandedRecipe(null)} style={styles.closeButton}>
                     <Ionicons name="arrow-back" size={24} color="#000" />
                   </Pressable>
-                  <Pressable onPress={() => toggleFavorite(expandedRecipe)}>
-                    <FontAwesome name="heart" size={24} color="#F00" />
+                  <Pressable onPress={() => handleToggleFavorite(expandedRecipe)}>
+                    <FontAwesome name="heart" size={24} color={expandedRecipe && favoriteRecipes.find(r => r.name === expandedRecipe.name) ? "#F00" : "#CCC"} />
                   </Pressable>
                 </View>
                 <Image source={{ uri: expandedRecipe.image }} style={styles.modalImage} />
