@@ -118,6 +118,7 @@ export default function SignInScreen() {
           <Pressable style={styles.link} onPress={() => router.push('/signup')}>
             <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
           </Pressable>
+          <Text style={styles.note}>Note: This app is designed for use on a phone. For the best experience, please use a phone platform.</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -169,5 +170,11 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  note: {
+    marginTop: 30,
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
