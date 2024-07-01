@@ -97,7 +97,8 @@ export default function MainScreen() {
           <View style={styles.header}>
             <View style={styles.profileContainer}>
               <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
-              <Text style={styles.greeting}>Hello {userName}</Text>
+              <Text style={styles.greeting}>Hello</Text>
+              <Text style={styles.username}>{userName}</Text>
             </View>
             <Pressable onPress={handleSignOut} style={styles.signOutButton}>
               <Ionicons name="log-out-outline" size={25} color="#000" />
@@ -216,10 +217,17 @@ const styles = StyleSheet.create({
   },
   greeting: {
     marginLeft: 10,
-    fontSize: 16,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#CBE25B',
+  },
+  username: {
+    marginLeft: 10,
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#000',
-    fontStyle: 'italic',
     textDecorationLine: 'underline',
+    fontStyle: 'italic',
   },
   signOutButton: {
     padding: 10,
