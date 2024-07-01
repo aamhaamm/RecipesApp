@@ -49,17 +49,19 @@ export default function MainScreen() {
       console.log("Attempting to sign out...");
       await signOut(auth);
       console.log("Signed out successfully");
-      router.replace('/')
+      router.replace('/');
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
   const filterRecipes = () => {
-    if (selectedCategory === 'All') {
-      return recipes;
-    }
-    return recipes.filter(recipe => recipe.categories.includes(selectedCategory));
+    return recipes.filter(recipe => {
+      return (
+        (selectedCategory === 'All' || recipe.categories.includes(selectedCategory)) &&
+        recipe.name.toLowerCase().includes(search.toLowerCase())
+      );
+    });
   };
 
   const renderCategories = () => {
