@@ -1,30 +1,31 @@
 import React from 'react';
-import { View, Modal, Image, Pressable, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Modal, Pressable, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Recipe } from '@/components/RecipeCard';
 
-// RecipeModal component to display recipe details in a modal
-const RecipeModal = ({ expandedRecipe, setExpandedRecipe, handleToggleFavorite, favoriteRecipes }: { expandedRecipe: Recipe | null, setExpandedRecipe: (recipe: Recipe | null) => void, handleToggleFavorite: (recipe: Recipe) => void, favoriteRecipes: Recipe[] }) => {
+interface RecipeModalProps {
+  expandedRecipe: Recipe | null;
+  setExpandedRecipe: (recipe: Recipe | null) => void;
+  handleToggleFavorite: (recipe: Recipe) => void;
+  favoriteRecipes: Recipe[];
+}
+
+const RecipeModal: React.FC<RecipeModalProps> = ({ expandedRecipe, setExpandedRecipe, handleToggleFavorite, favoriteRecipes }) => {
   if (!expandedRecipe) return null;
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={!!expandedRecipe}
-      onRequestClose={() => setExpandedRecipe(null)}
-    >
+    <Modal visible={true} transparent={true}>
       <Pressable style={styles.modalContainer} onPress={() => setExpandedRecipe(null)}>
         <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Pressable onPress={() => setExpandedRecipe(null)} style={styles.closeButton}>
-                <Ionicons name="arrow-back" size={24} color="#000" />
+              <Pressable onPress={() => setExpandedRecipe(null)} style={styles.backButton}>
+                <Ionicons name="arrow-back-outline" size={25} color="#000" />
               </Pressable>
-              <Pressable onPress={() => handleToggleFavorite(expandedRecipe)}>
-                <FontAwesome name="heart" size={24} color={favoriteRecipes.find(r => r.name === expandedRecipe.name) ? "#F00" : "#CCC"} />
+              <Pressable onPress={() => handleToggleFavorite(expandedRecipe)} style={styles.favoriteButton}>
+                <Ionicons name={favoriteRecipes.find(r => r.name === expandedRecipe.name) ? "heart" : "heart-outline"} size={25} color={favoriteRecipes.find(r => r.name === expandedRecipe.name) ? "#ff0000" : "#000"} />
               </Pressable>
             </View>
             <Image source={{ uri: expandedRecipe.image }} style={styles.modalImage} />
@@ -51,7 +52,7 @@ const RecipeModal = ({ expandedRecipe, setExpandedRecipe, handleToggleFavorite, 
               <Text style={styles.sectionTitle}>Ingredients</Text>
               {expandedRecipe.ingredients.map((ingredient, index) => (
                 <Text key={index} style={styles.ingredientText}>
-                  {`\u2022 ${ingredient}`}
+                  • {ingredient}
                 </Text>
               ))}
             </View>
@@ -59,7 +60,7 @@ const RecipeModal = ({ expandedRecipe, setExpandedRecipe, handleToggleFavorite, 
               <Text style={styles.sectionTitle}>Steps</Text>
               {expandedRecipe.steps.map((step, index) => (
                 <Text key={index} style={styles.stepText}>
-                  {`${index + 1}. ${step}`}
+                  {index + 1}. {step}
                 </Text>
               ))}
             </View>
@@ -89,8 +90,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  closeButton: {
+  backButton: {
     alignItems: 'flex-start',
+  },
+  favoriteButton: {
+    alignItems: 'flex-end',
   },
   modalImage: {
     width: '100%',

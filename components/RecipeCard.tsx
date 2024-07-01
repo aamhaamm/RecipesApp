@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, View, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Animated, Image } from 'react-native';
 import { Text } from '@/components/Themed';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
+// Define the Recipe interface
 export interface Recipe {
   categories: any;
   name: string;
@@ -24,7 +25,7 @@ interface RecipeCardProps {
   onToggleFavorite: () => void;
 }
 
-export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavorite }: RecipeCardProps) {
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isFavorite, onPress, onToggleFavorite }) => {
   const translateY = useRef(new Animated.Value(50)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const imageOpacity = useRef(new Animated.Value(0)).current;
@@ -91,7 +92,7 @@ export default function RecipeCard({ recipe, isFavorite, onPress, onToggleFavori
       </TouchableOpacity>
     </Animated.View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   recipeCard: {
@@ -142,3 +143,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
+
+// Export the RecipeCard component and Recipe interface
+export { RecipeCard };

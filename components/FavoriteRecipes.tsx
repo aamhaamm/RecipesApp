@@ -1,10 +1,17 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/Themed';
-import RecipeCard, { Recipe } from '@/components/RecipeCard';
+import { RecipeCard, Recipe } from '@/components/RecipeCard';
+
+// Props interface for the FavoriteRecipes component
+interface FavoriteRecipesProps {
+  favoriteRecipes: Recipe[];
+  handleToggleFavorite: (recipe: Recipe) => void;
+  setExpandedRecipe: (recipe: Recipe) => void;
+}
 
 // FavoriteRecipes component to display a list of favorite recipes
-const FavoriteRecipes = ({ favoriteRecipes, handleToggleFavorite, setExpandedRecipe }: { favoriteRecipes: Recipe[], handleToggleFavorite: (recipe: Recipe) => void, setExpandedRecipe: (recipe: Recipe) => void }) => {
+const FavoriteRecipes: React.FC<FavoriteRecipesProps> = ({ favoriteRecipes, handleToggleFavorite, setExpandedRecipe }) => {
   return (
     <>
       <Text style={styles.sectionTitle}>Favorite Recipes</Text>
@@ -27,6 +34,7 @@ const FavoriteRecipes = ({ favoriteRecipes, handleToggleFavorite, setExpandedRec
   );
 };
 
+// Styles for the FavoriteRecipes component
 const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
