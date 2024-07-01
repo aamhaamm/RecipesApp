@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { StyleSheet, TouchableOpacity, View, Animated, Image } from 'react-native';
 import { Text } from '@/components/Themed';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { db, auth } from '@/firebaseConfig';
+import { doc, deleteDoc } from 'firebase/firestore';
 
 // Define the Recipe interface
 export interface Recipe {
@@ -16,6 +18,8 @@ export interface Recipe {
   ingredients: string[];
   steps: string[];
   isFavorite: boolean;
+  id: string;
+  userId: string;
 }
 
 interface RecipeCardProps {
@@ -23,9 +27,10 @@ interface RecipeCardProps {
   isFavorite: boolean;
   onPress: () => void;
   onToggleFavorite: () => void;
+  onDelete: (recipeId: string) => void;
 }
 
-const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isFavorite, onPress, onToggleFavorite }) => {
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isFavorite, onPress, onToggleFavorite, onDelete }) => {
   const translateY = useRef(new Animated.Value(50)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const imageOpacity = useRef(new Animated.Value(0)).current;
@@ -60,6 +65,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isFavorite, onPress, on
     ]).start();
   }, []);
 
+  const handleDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'recipes', recipe.id));
+      onDelete(recipe.id);
+    } catch (error) {
+      console.error("Error deleting recipe: ", error);
+    }
+  };
+
   return (
     <Animated.View style={[styles.recipeCard, { transform: [{ translateY }], opacity }]}>
       <TouchableOpacity style={styles.touchable} onPress={onPress}>
@@ -76,6 +90,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isFavorite, onPress, on
         >
           <FontAwesome name="heart" size={24} color={isFavorite ? "#F00" : "#CCC"} />
         </TouchableOpacity>
+        {auth.currentUser?.uid === recipe.userId && (
+          <TouchableOpacity
+            style={styles.deleteIcon}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+          >
+            <FontAwesome name="trash" size={24} color="#F00" />
+          </TouchableOpacity>
+        )}
         <View style={styles.cardContent}>
           <Text style={styles.recipeText}>{recipe.name}</Text>
           <View style={styles.recipeDetails}>
@@ -129,6 +154,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
   },
   recipeDetails: {
     flexDirection: 'row',

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View, TextInput, Modal, Pressable, ActivityIndicator } from 'react-native';
-import { Text } from '@/components/Themed';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { StyleSheet, ScrollView, View, ActivityIndicator, TouchableOpacity, Text, Alert } from 'react-native';
 import { fetchRecipes } from '@/components/firestoreService';
 import { useFavorites } from '@/components/FavoritesContext';
 import { auth, db } from '@/firebaseConfig';
@@ -14,6 +11,7 @@ import RecipeList from '@/components/RecipeList';
 import SearchBar from '@/components/SearchBar';
 import CategoryList from '@/components/CategoryList';
 import RecipeModal from '@/components/RecipeModal';
+import AddRecipeModal from '@/components/AddRecipeModal';
 import { Recipe } from '@/components/RecipeCard';
 
 export default function MainScreen() {
@@ -23,6 +21,7 @@ export default function MainScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [userName, setUserName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [isAddModalVisible, setAddModalVisible] = useState<boolean>(false);
 
   const { favoriteRecipes, toggleFavorite } = useFavorites();
   const router = useRouter();
@@ -67,34 +66,47 @@ export default function MainScreen() {
     });
   };
 
+  const handleRecipeAdded = (newRecipe: Recipe) => {
+    setRecipes([...recipes, newRecipe]);
+  };
+
+  const handleRecipeDelete = (recipeId: string) => {
+    setRecipes(recipes.filter(recipe => recipe.id !== recipeId));
+  };
+
+  const showAlert = () => {
+    Alert.alert(
+      "Coming Soon",
+      "This feature will be available soon. Thank you for your patience.",
+      [{ text: "OK" }]
+    );
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
         <ActivityIndicator size="large" color="#CBE25B" style={styles.loader} />
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContentContainer}>
-          {/* Main header component */}
-          <MainHeader userName={userName} onSignOut={handleSignOut} />
-
-          {/* Title */}
-          <Text style={styles.title}>
-            Make your own food, <Text style={styles.highlight}>stay at home</Text>
-          </Text>
-
-          {/* Search bar component */}
-          <SearchBar search={search} setSearch={setSearch} />
-
-          {/* Category list component */}
-          <CategoryList selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-
-          {/* Recipe list component */}
-          <RecipeList
-            recipes={filterRecipes()}
-            favoriteRecipes={favoriteRecipes}
-            setSelectedRecipe={setSelectedRecipe}
-            toggleFavorite={toggleFavorite}
-          />
-        </ScrollView>
+        <>
+          <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+            <MainHeader userName={userName} onSignOut={handleSignOut} />
+            <Text style={styles.title}>
+              Make your own food, <Text style={styles.highlight}>stay at home</Text>
+            </Text>
+            <SearchBar search={search} setSearch={setSearch} />
+            <CategoryList selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+            <TouchableOpacity style={styles.addButton} onPress={showAlert}>
+            <Text style={styles.addButtonText}>Add Recipe</Text>
+          </TouchableOpacity>
+            <RecipeList
+              recipes={filterRecipes()}
+              favoriteRecipes={favoriteRecipes}
+              setSelectedRecipe={setSelectedRecipe}
+              toggleFavorite={toggleFavorite}
+              handleDelete={handleRecipeDelete}
+            />
+          </ScrollView>
+        </>
       )}
       {selectedRecipe && (
         <RecipeModal
@@ -104,6 +116,11 @@ export default function MainScreen() {
           favoriteRecipes={favoriteRecipes}
         />
       )}
+      <AddRecipeModal
+        isVisible={isAddModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onRecipeAdded={handleRecipeAdded}
+      />
     </View>
   );
 }
@@ -129,5 +146,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  addButton: {
+    backgroundColor: '#CBE25B',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    margin: 4,
+  },
+  addButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
   },
 });

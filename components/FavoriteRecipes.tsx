@@ -19,12 +19,13 @@ const FavoriteRecipes: React.FC<FavoriteRecipesProps> = ({ favoriteRecipes, hand
         {favoriteRecipes.length > 0 ? (
           favoriteRecipes.map((recipe, index) => (
             <RecipeCard
-              key={index}
-              recipe={recipe}
-              isFavorite={true}
-              onPress={() => setExpandedRecipe(recipe)}
-              onToggleFavorite={() => handleToggleFavorite(recipe)}
-            />
+                  key={index}
+                  recipe={recipe}
+                  isFavorite={true}
+                  onPress={() => setExpandedRecipe(recipe)}
+                  onToggleFavorite={() => handleToggleFavorite(recipe)} onDelete={function (recipeId: string): void {
+                      throw new Error('Function not implemented.');
+                  } }            />
           ))
         ) : (
           <Text>No favorite recipes found.</Text>

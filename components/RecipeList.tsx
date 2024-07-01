@@ -8,9 +8,10 @@ interface RecipeListProps {
   favoriteRecipes: Recipe[];
   setSelectedRecipe: (recipe: Recipe | null) => void;
   toggleFavorite: (recipe: Recipe) => void;
+  handleDelete: (recipeId: string) => void;
 }
 
-const RecipeList: React.FC<RecipeListProps> = ({ recipes, favoriteRecipes, setSelectedRecipe, toggleFavorite }) => {
+const RecipeList: React.FC<RecipeListProps> = ({ recipes, favoriteRecipes, setSelectedRecipe, toggleFavorite, handleDelete }) => {
   return (
     <View style={styles.recipesContainer}>
       {recipes.length > 0 ? (
@@ -21,6 +22,7 @@ const RecipeList: React.FC<RecipeListProps> = ({ recipes, favoriteRecipes, setSe
             isFavorite={favoriteRecipes.find(r => r.name === recipe.name) !== undefined}
             onPress={() => setSelectedRecipe(recipe)}
             onToggleFavorite={() => toggleFavorite(recipe)}
+            onDelete={handleDelete}
           />
         ))
       ) : (
