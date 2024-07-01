@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Animated, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Animated, View, ActivityIndicator, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { auth, db } from '@/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import InputField from '@/components/InputField';
+import CustomButton from '@/components/CustomButton';
+import ErrorMessage from '@/components/ErrorMessage';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -14,6 +17,7 @@ export default function SignInScreen() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Handle user sign-in
   const handleSignIn = async () => {
     setLoading(true);
     try {
@@ -24,7 +28,6 @@ export default function SignInScreen() {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        // Save the user name in some global state or context if necessary
         console.log('User data:', userData);
       }
 
@@ -42,6 +45,7 @@ export default function SignInScreen() {
     }
   };
 
+  // Map Firebase error codes to user-friendly messages
   const getErrorMessage = (errorCode: string): string => {
     switch (errorCode) {
       case 'auth/invalid-email':
@@ -57,8 +61,8 @@ export default function SignInScreen() {
     }
   };
 
+  // Animation for heartbeat effect
   const scaleValue = new Animated.Value(1);
-
   const startHeartbeat = () => {
     Animated.loop(
       Animated.sequence([
@@ -81,10 +85,7 @@ export default function SignInScreen() {
   }, []);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.topContainer}>
           <Text style={styles.title}>Welcome to Recipes Maker</Text>
@@ -94,35 +95,25 @@ export default function SignInScreen() {
           />
         </View>
         <View style={styles.bottomContainer}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#333" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#333" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
-          {error && <Text style={styles.errorText}>{error}</Text>}
+          <InputField
+            icon="mail-outline"
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+          <InputField
+            icon="lock-closed-outline"
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          {error && <ErrorMessage message={error} />}
           {loading ? (
             <ActivityIndicator size="large" color="#CBE25B" />
           ) : (
-            <Pressable style={styles.button} onPress={handleSignIn}>
-              <Text style={styles.buttonText}>Sign In</Text>
-            </Pressable>
+            <CustomButton title="Sign In" onPress={handleSignIn} />
           )}
           <Pressable style={styles.link} onPress={() => router.push('/signup')}>
             <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
@@ -170,44 +161,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     marginTop: -20,
     marginBottom: 20,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginVertical: 10,
-    backgroundColor: '#f9f9f9',
-    width: '100%',
-  },
-  icon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 40,
-  },
-  button: {
-    backgroundColor: '#CBE25B',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 20,
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 20,
-    fontSize: 16,
-    textAlign: 'center',
   },
   link: {
     marginTop: 20,
