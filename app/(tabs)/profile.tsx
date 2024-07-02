@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { auth, db } from '@/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useFavorites } from '@/components/FavoritesContext';
-import ProfileHeader from '@/components/ProfileHeader';
 import ProfileInfo from '@/components/ProfileInfo';
 import FavoriteRecipes from '@/components/FavoriteRecipes';
 import RecipeModal from '@/components/RecipeModal';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Text } from '@/components/Themed';
 import { Recipe } from '@/components/RecipeCard';
 
-// ProfileScreen component to display the profile screen
 const ProfileScreen = () => {
   const [expandedRecipe, setExpandedRecipe] = useState<Recipe | null>(null);
   const { favoriteRecipes, toggleFavorite } = useFavorites();
@@ -52,9 +52,23 @@ const ProfileScreen = () => {
     router.push('/change-password');
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.replace('/');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <ProfileHeader />
+      <View style={styles.headerContainer}>
+        <Text style={styles.profileTitle}>Profile</Text>
+        <Pressable onPress={handleSignOut} style={styles.signOutButton}>
+          <Ionicons name="log-out-outline" size={25} color="#000" />
+        </Pressable>
+      </View>
       <ProfileInfo user={user} favoriteCount={favoriteRecipes.length} onChangePassword={handleChangePassword} />
       <FavoriteRecipes favoriteRecipes={favoriteRecipes} handleToggleFavorite={handleToggleFavorite} setExpandedRecipe={setExpandedRecipe} />
       <RecipeModal expandedRecipe={expandedRecipe} setExpandedRecipe={setExpandedRecipe} handleToggleFavorite={handleToggleFavorite} favoriteRecipes={favoriteRecipes} />
@@ -68,6 +82,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
     paddingTop: 40,
+    marginTop: 20,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Center the profile title
+    marginBottom: 20,
+  },
+  signOutButton: {
+    position: 'absolute',
+    right: 0, // Position the sign-out button in the right corner
+  },
+  profileTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
   },
 });
 

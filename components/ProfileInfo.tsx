@@ -3,13 +3,19 @@ import { View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-nati
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+interface ProfileInfoProps {
+  user: { name: string; email: string; photo: any; };
+  favoriteCount: number;
+  onChangePassword: () => void;
+}
+
 // ProfileInfo component to display user information
-const ProfileInfo = ({ user, favoriteCount, onChangePassword }: { user: { name: string; email: string; photo: any; }, favoriteCount: number, onChangePassword: () => void }) => {
+const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, favoriteCount, onChangePassword }) => {
   return (
     <>
       <View style={styles.profileContainer}>
         <Image source={user.photo} style={styles.profileImage} />
-        <View style={styles.nameContainer}>
+        <View style={styles.nameFavoriteContainer}>
           <Text style={styles.name}>{user.name}</Text>
           <View style={styles.favoriteContainer}>
             <Ionicons name="heart" size={20} color="#F00" />
@@ -36,6 +42,7 @@ const ProfileInfo = ({ user, favoriteCount, onChangePassword }: { user: { name: 
 
 const styles = StyleSheet.create({
   profileContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
   },
@@ -43,17 +50,17 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 10,
+    marginRight: 10,
   },
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  nameFavoriteContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
-    marginRight: 10,
+    marginBottom: 5,
   },
   favoriteContainer: {
     flexDirection: 'row',
@@ -83,7 +90,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   changePasswordButton: {
-    backgroundColor: '#CBE25B', 
+    backgroundColor: '#CBE25B', // Update this color to match buttons on other pages
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
