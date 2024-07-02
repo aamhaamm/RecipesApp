@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View, ActivityIndicator, TouchableOpacity, Text, Alert } from 'react-native';
+import { StyleSheet, ScrollView, View, ActivityIndicator, TouchableOpacity, Modal, Text, Pressable, Alert } from 'react-native';
 import { fetchRecipes } from '@/components/firestoreService';
 import { useFavorites } from '@/components/FavoritesContext';
 import { auth, db } from '@/firebaseConfig';
@@ -13,6 +13,7 @@ import CategoryList from '@/components/CategoryList';
 import RecipeModal from '@/components/RecipeModal';
 import AddRecipeModal from '@/components/AddRecipeModal';
 import { Recipe } from '@/components/RecipeCard';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function MainScreen() {
   const [search, setSearch] = useState<string>('');
@@ -22,6 +23,7 @@ export default function MainScreen() {
   const [userName, setUserName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [isAddModalVisible, setAddModalVisible] = useState<boolean>(false);
+  const [isSidebarVisible, setSidebarVisible] = useState<boolean>(false);
 
   const { favoriteRecipes, toggleFavorite } = useFavorites();
   const router = useRouter();
@@ -82,6 +84,14 @@ export default function MainScreen() {
     );
   };
 
+  const openSidebar = () => {
+    setSidebarVisible(true);
+  };
+
+  const closeSidebar = () => {
+    setSidebarVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -89,7 +99,7 @@ export default function MainScreen() {
       ) : (
         <>
           <ScrollView contentContainerStyle={styles.scrollContentContainer}>
-            <MainHeader userName={userName} onSignOut={handleSignOut} />
+            <MainHeader userName={userName} onSignOut={handleSignOut} onProfilePhotoPress={openSidebar} />
             <Text style={styles.title}>
               Make your own food, <Text style={styles.highlight}>stay at home</Text>
             </Text>
@@ -118,6 +128,28 @@ export default function MainScreen() {
         onClose={() => setAddModalVisible(false)}
         onRecipeAdded={handleRecipeAdded}
       />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isSidebarVisible}
+        onRequestClose={closeSidebar}
+      >
+        <View style={styles.sidebar}>
+          <View style={styles.sidebarContent}>
+            <Text style={styles.sidebarTitle}>Profile</Text>
+            <View style={styles.likesContainer}>
+              <Ionicons name="heart" size={20} color="#ff0000" />
+              <Text style={styles.likesText}>{favoriteRecipes.length}</Text>
+            </View>
+            <Pressable onPress={handleSignOut} style={styles.sidebarButton}>
+              <Text style={styles.sidebarButtonText}>Sign Out</Text>
+            </Pressable>
+            <Pressable onPress={closeSidebar} style={styles.sidebarButton}>
+              <Text style={styles.sidebarButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -144,15 +176,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  addButton: {
-    backgroundColor: '#CBE25B',
-    padding: 15,
-    borderRadius: 5,
+  sidebar: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
     alignItems: 'center',
-    margin: 4,
   },
-  addButtonText: {
+  sidebarContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  sidebarTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  likesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  likesText: {
+    fontSize: 18,
+    marginLeft: 5,
+  },
+  sidebarButton: {
+    backgroundColor: '#CBE25B',
+    padding: 10,
+    borderRadius: 5,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sidebarButtonText: {
     color: '#000',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
+

@@ -6,16 +6,17 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 interface MainHeaderProps {
   userName: string;
   onSignOut: () => void;
+  onProfilePhotoPress: () => void;
 }
 
-const MainHeader: React.FC<MainHeaderProps> = ({ userName, onSignOut }) => {
+const MainHeader: React.FC<MainHeaderProps> = ({ userName, onSignOut, onProfilePhotoPress }) => {
   return (
     <View style={styles.header}>
-      <View style={styles.profileContainer}>
+      <Pressable onPress={onProfilePhotoPress} style={styles.profileContainer}>
         <Image source={require('@/assets/images/profile.png')} style={styles.profileImage} />
         <Text style={styles.greeting}>Hello</Text>
         <Text style={styles.username}>{userName}</Text>
-      </View>
+      </Pressable>
       <Pressable onPress={onSignOut} style={styles.signOutButton}>
         <Ionicons name="log-out-outline" size={25} color="#000" />
       </Pressable>
