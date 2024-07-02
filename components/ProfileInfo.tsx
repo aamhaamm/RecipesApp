@@ -1,15 +1,19 @@
 import React from 'react';
-import { View, Image, StyleSheet, TextInput } from 'react-native';
+import { View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // ProfileInfo component to display user information
-const ProfileInfo = ({ user }: { user: { name: string; email: string; photo: any; } }) => {
+const ProfileInfo = ({ user, favoriteCount, onChangePassword }: { user: { name: string; email: string; photo: any; }, favoriteCount: number, onChangePassword: () => void }) => {
   return (
     <>
       <View style={styles.profileContainer}>
         <Image source={user.photo} style={styles.profileImage} />
         <Text style={styles.name}>{user.name}</Text>
+        <View style={styles.favoriteContainer}>
+          <Ionicons name="heart" size={20} color="#F00" />
+          <Text style={styles.favoriteCount}>{favoriteCount}</Text>
+        </View>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons name="mail-outline" size={20} color="#000" style={styles.icon} />
@@ -21,6 +25,9 @@ const ProfileInfo = ({ user }: { user: { name: string; email: string; photo: any
           editable={false}
         />
       </View>
+      <TouchableOpacity onPress={onChangePassword} style={styles.changePasswordButton}>
+        <Text style={styles.changePasswordButtonText}>Change Password</Text>
+      </TouchableOpacity>
     </>
   );
 };
@@ -41,6 +48,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
+  favoriteContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  favoriteCount: {
+    fontSize: 16,
+    color: '#000',
+    marginLeft: 5,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -58,6 +75,17 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
+  },
+  changePasswordButton: {
+    backgroundColor: '#007BFF',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  changePasswordButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
