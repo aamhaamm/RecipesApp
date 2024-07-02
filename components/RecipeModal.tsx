@@ -50,19 +50,23 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ expandedRecipe, setExpandedRe
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Ingredients</Text>
-              {expandedRecipe.ingredients.map((ingredient, index) => (
-                <Text key={index} style={styles.ingredientText}>
-                  • {ingredient}
-                </Text>
-              ))}
+              <View style={styles.textContainer}>
+                {expandedRecipe.ingredients.map((ingredient, index) => (
+                  <Text key={index} style={styles.ingredientText}>
+                    • {ingredient}
+                  </Text>
+                ))}
+              </View>
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Steps</Text>
-              {expandedRecipe.steps.map((step, index) => (
-                <Text key={index} style={styles.stepText}>
-                  {index + 1}. {step}
-                </Text>
-              ))}
+              <View style={styles.textContainer}>
+                {expandedRecipe.steps.map((step, index) => (
+                  <Text key={index} style={styles.stepText}>
+                    {index + 1}. {step}
+                  </Text>
+                ))}
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -124,11 +128,15 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginVertical: 10,
+    width: '100%', // Make sure the container takes the full width
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
+  },
+  textContainer: {
+    alignItems: 'flex-start', // Align the text to the left
   },
   ingredientText: {
     fontSize: 14,

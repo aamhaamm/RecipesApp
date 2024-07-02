@@ -95,9 +95,6 @@ export default function MainScreen() {
             </Text>
             <SearchBar search={search} setSearch={setSearch} />
             <CategoryList selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-            <TouchableOpacity style={styles.addButton} onPress={showAlert}>
-            <Text style={styles.addButtonText}>Add Recipe</Text>
-          </TouchableOpacity>
             <RecipeList
               recipes={filterRecipes()}
               favoriteRecipes={favoriteRecipes}
