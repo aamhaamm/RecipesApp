@@ -49,7 +49,7 @@ const ProfileScreen = () => {
   };
 
   const handleChangePassword = () => {
-    router.push('/change-password'); // Ensure the route is correct
+    router.push('/change-password');
   };
 
   return (

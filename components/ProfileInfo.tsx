@@ -9,10 +9,12 @@ const ProfileInfo = ({ user, favoriteCount, onChangePassword }: { user: { name: 
     <>
       <View style={styles.profileContainer}>
         <Image source={user.photo} style={styles.profileImage} />
-        <Text style={styles.name}>{user.name}</Text>
-        <View style={styles.favoriteContainer}>
-          <Ionicons name="heart" size={20} color="#F00" />
-          <Text style={styles.favoriteCount}>{favoriteCount}</Text>
+        <View style={styles.nameContainer}>
+          <Text style={styles.name}>{user.name}</Text>
+          <View style={styles.favoriteContainer}>
+            <Ionicons name="heart" size={20} color="#F00" />
+            <Text style={styles.favoriteCount}>{favoriteCount}</Text>
+          </View>
         </View>
       </View>
       <View style={styles.inputContainer}>
@@ -43,15 +45,19 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginBottom: 10,
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
+    marginRight: 10,
   },
   favoriteContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
   },
   favoriteCount: {
     fontSize: 16,
@@ -77,15 +83,18 @@ const styles = StyleSheet.create({
     height: 40,
   },
   changePasswordButton: {
-    backgroundColor: '#007BFF',
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: '#CBE25B', 
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+    width: '100%',
     alignItems: 'center',
-    marginTop: 10,
   },
   changePasswordButtonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
