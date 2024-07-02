@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginVertical: 10,
-    width: '100%', // Make sure the container takes the full width
+    width: '100%', 
   },
   sectionTitle: {
     fontSize: 20,
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   textContainer: {
-    alignItems: 'flex-start', // Align the text to the left
+    alignItems: 'flex-start', 
   },
   ingredientText: {
     fontSize: 14,
